@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "es2015",
     "target": "es5",
     "lib": ["es5", "es6", "dom", "es2017", "es2019"],
     "sourceMap": true,
@@ -23,6 +23,6 @@
     "suppressImplicitAnyIndexErrors": true,
     "resolveJsonModule": true
   },
-  "include": ["./library", "./playground"],
+  "include": ["./library", "./playground", "./web-component"],
   "exclude": ["*/node_modules/**/*", "*/lib/**/*"]
 }
