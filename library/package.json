@@ -39,6 +39,7 @@
   "scripts": {
     "start": "tsc --watch",
     "build": "tsc && npm run copyCss",
+    "build:rollup": "rollup -c",
     "test": "jest --detectOpenHandles",
     "testWatch": "jest --detectOpenHandles --watch",
     "copyCss": "cp -r ./src/styles ./lib",
@@ -57,7 +58,15 @@
     "openapi-sampler": "^1.0.0-beta.15",
     "react-use": "^12.2.0"
   },
+  "peerDependencies": {
+    "react": "^17.x"
+  },
   "devDependencies": {
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.2.0",
+    "@rollup/plugin-replace": "^2.4.1",
     "@types/dompurify": "^2.0.4",
     "@types/jest": "^24.0.18",
     "@types/markdown-it": "^10.0.2",
@@ -65,6 +74,10 @@
     "@types/react": "^16.9.2",
     "jest": "^24.9.0",
     "react": "^16.9.0",
+    "rollup": "^2.41.4",
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-terser": "^7.0.2",
     "ts-jest": "^26.4.1"
   },
   "publishConfig": {

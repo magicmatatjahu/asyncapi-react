@@ -65,8 +65,8 @@ class AsyncApiComponent extends Component<AsyncApiProps, AsyncAPIState> {
   }
 
   render() {
-    const { config } = this.props;
-    const { validatedSchema, error } = this.state;
+    const { schema, config } = this.props;
+    let { validatedSchema, error } = this.state;
     const concatenatedConfig: ConfigInterface = {
       ...defaultConfig,
       ...config,
@@ -79,6 +79,11 @@ class AsyncApiComponent extends Component<AsyncApiProps, AsyncAPIState> {
         ...(!!config && config.expand),
       },
     };
+
+    if (typeof schema.json === 'function') {
+      validatedSchema = schema.json();
+    }
+    console.log(validatedSchema);
 
     if (!validatedSchema || !Object.keys(validatedSchema).length) {
       if (!error) {
