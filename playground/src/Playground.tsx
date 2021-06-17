@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import AsyncApi, { ConfigInterface } from '@asyncapi/react-component';
+import { ConfigInterface } from '@asyncapi/react-component';
+import AsyncApiEditor from '@asyncapi/editor';
 
 import {
   Navigation,
@@ -54,6 +55,7 @@ class Playground extends Component<{}, State> {
   }
 
   render() {
+    console.log(AsyncApiEditor);
     const { schema, config, schemaFromExternalResource } = this.state;
     const parsedConfig = parse<ConfigInterface>(config || defaultConfig);
 
@@ -89,7 +91,7 @@ class Playground extends Component<{}, State> {
             </Tabs>
           </CodeEditorsWrapper>
           <AsyncApiWrapper>
-            <AsyncApi schema={schema} config={parsedConfig} />
+            <AsyncApiEditor componentProps={{ schema, config: parsedConfig }} />
           </AsyncApiWrapper>
         </SplitWrapper>
       </PlaygroundWrapper>
