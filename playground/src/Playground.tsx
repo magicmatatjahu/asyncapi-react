@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
-import { ConfigInterface } from '@asyncapi/react-component';
-import AsyncApiEditor from '@asyncapi/editor';
+// import { ConfigInterface } from '@asyncapi/react-component';
+// import AsyncApiEditor from '@asyncapi/editor';
 
-import {
-  Navigation,
-  CodeEditorComponent,
-  FetchSchema,
-  RefreshIcon,
-  Tabs,
-  Tab,
-  PlaygroundWrapper,
-  CodeEditorsWrapper,
-  AsyncApiWrapper,
-  SplitWrapper,
-} from './components';
+import { Editor } from './editor';
 
-import { defaultConfig, parse, debounce } from './common';
+import // RefreshIcon,
+// Navigation,
+// CodeEditorComponent,
+// FetchSchema,
+// Tabs,
+// Tab,
+// PlaygroundWrapper,
+// CodeEditorsWrapper,
+// AsyncApiWrapper,
+// SplitWrapper,
+'./components';
+
+// import { defaultConfig, parse, debounce } from './common';
+import { defaultConfig, debounce } from './common';
 import * as specs from './specs';
 
 const defaultSchema = specs.streetlights;
@@ -55,56 +57,64 @@ class Playground extends Component<{}, State> {
   }
 
   render() {
-    console.log(AsyncApiEditor);
-    const { schema, config, schemaFromExternalResource } = this.state;
-    const parsedConfig = parse<ConfigInterface>(config || defaultConfig);
+    // const { schema, config } = this.state;
+    // const parsedConfig = parse<ConfigInterface>(config || defaultConfig);
 
-    return (
-      <PlaygroundWrapper>
-        <Navigation />
-        <SplitWrapper>
-          <CodeEditorsWrapper>
-            <Tabs
-              additionalHeaderContent={this.renderAdditionalHeaderContent()}
-            >
-              <Tab title="Schema" key="Schema">
-                <>
-                  <FetchSchema
-                    parentCallback={this.updateSchemaFromExternalResource}
-                  />
-                  <CodeEditorComponent
-                    key="Schema"
-                    code={schema}
-                    externalResource={schemaFromExternalResource}
-                    parentCallback={this.updateSchemaFn}
-                    mode="text/yaml"
-                  />
-                </>
-              </Tab>
-              <Tab title="Configuration" key="Configuration">
-                <CodeEditorComponent
-                  key="Configuration"
-                  code={config}
-                  parentCallback={this.updateConfigFn}
-                />
-              </Tab>
-            </Tabs>
-          </CodeEditorsWrapper>
-          <AsyncApiWrapper>
-            <AsyncApiEditor componentProps={{ schema, config: parsedConfig }} />
-          </AsyncApiWrapper>
-        </SplitWrapper>
-      </PlaygroundWrapper>
-    );
+    return <Editor value={defaultSchema} />;
+
+    // return (
+    //   <AsyncApiEditor
+    //     componentProps={{ schema, config: parsedConfig }}
+    //     // monacoEditor={{ value: defaultSchema }}
+    //   />
+    // );
+
+    // return (
+    //   <PlaygroundWrapper>
+    //     <Navigation />
+    //     <SplitWrapper>
+    //       <CodeEditorsWrapper>
+    //         <Tabs
+    //           additionalHeaderContent={this.renderAdditionalHeaderContent()}
+    //         >
+    //           <Tab title="Schema" key="Schema">
+    //             <>
+    //               <FetchSchema
+    //                 parentCallback={this.updateSchemaFromExternalResource}
+    //               />
+    //               <CodeEditorComponent
+    //                 key="Schema"
+    //                 code={schema}
+    //                 externalResource={schemaFromExternalResource}
+    //                 parentCallback={this.updateSchemaFn}
+    //                 mode="text/yaml"
+    //               />
+    //             </>
+    //           </Tab>
+    //           <Tab title="Configuration" key="Configuration">
+    //             <CodeEditorComponent
+    //               key="Configuration"
+    //               code={config}
+    //               parentCallback={this.updateConfigFn}
+    //             />
+    //           </Tab>
+    //         </Tabs>
+    //       </CodeEditorsWrapper>
+    //       <AsyncApiWrapper>
+    //         <AsyncApiEditor componentProps={{ schema, config: parsedConfig }} />
+    //       </AsyncApiWrapper>
+    //     </SplitWrapper>
+    //   </PlaygroundWrapper>
+    // );
   }
 
   private updateSchema = (schema: string) => {
     this.setState({ schema });
   };
 
-  private updateSchemaFromExternalResource = (schema: string) => {
-    this.setState({ schemaFromExternalResource: schema });
-  };
+  // private updateSchemaFromExternalResource = (schema: string) => {
+  //   this.setState({ schemaFromExternalResource: schema });
+  // };
 
   private updateConfig = (config: string) => {
     this.setState({ config });
@@ -120,9 +130,9 @@ class Playground extends Component<{}, State> {
     this.setState({ refreshing: false });
   };
 
-  private renderAdditionalHeaderContent = () => (
-    <RefreshIcon show={this.state.refreshing}>{'\uE00A'}</RefreshIcon>
-  );
+  // private renderAdditionalHeaderContent = () => (
+  //   <RefreshIcon show={this.state.refreshing}>{'\uE00A'}</RefreshIcon>
+  // );
 }
 
 export default Playground;

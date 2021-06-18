@@ -13,10 +13,11 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
     schema: '',
     config: {},
   },
+  monacoEditor = {},
 }) => {
   return (
     <div>
-      <Editor />
+      <Editor {...monacoEditor} />
       <AsyncApiComponent
         schema={componentProps.schema}
         config={componentProps.config}
