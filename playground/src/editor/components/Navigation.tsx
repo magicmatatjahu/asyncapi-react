@@ -133,6 +133,36 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
           </ul>
         </li>
       )}
+      {spec.hasComponents() && spec.components().schemas() && (
+        <li>
+          <div
+            className="p-2 text-white cursor-pointer border-t border-gray-700"
+            onClick={() =>
+              goToLine(editor, '/components/schemas', rawSpec, 'schemas')
+            }
+          >
+            Schemas
+          </div>
+          <ul>
+            {Object.keys(spec.components().schemas() || {}).map(schemaName => (
+              <li
+                key={schemaName}
+                className="p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700"
+                onClick={() =>
+                  goToLine(
+                    editor,
+                    `/components/schemas/${schemaName.replace(/\//g, '~1')}`,
+                    rawSpec,
+                    '',
+                  )
+                }
+              >
+                {schemaName}
+              </li>
+            ))}
+          </ul>
+        </li>
+      )}
     </ul>
   );
 };
