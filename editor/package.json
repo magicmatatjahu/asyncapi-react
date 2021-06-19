@@ -48,7 +48,7 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:types": "tsc -p tsconfig.types.json",
-    "build:workers": "webpack --colors",
+    "build:workers": "webpack --mode production --colors",
     "prepare": "npm run build:dev",
     "install:reactcomp": "chmod +x ./bump-react-comp.sh && ./bump-react-comp.sh"
   },

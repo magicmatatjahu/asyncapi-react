@@ -6,8 +6,6 @@ const SplitWrapper: React.FunctionComponent = ({ children }) => (
   <Split
     style={{
       width: '100%',
-      height: 'calc(100vh - 50px)',
-      minHeight: 'calc(100vh - 50px)',
       display: 'flex',
       background: '#f3f4f5',
     }}
@@ -18,9 +16,9 @@ const SplitWrapper: React.FunctionComponent = ({ children }) => (
     }}
     gutterStyle={() => ({
       backgroundColor: 'gray',
-      width: '7px',
+      width: '3px',
     })}
-    minSize={250}
+    minSize={0}
   >
     {children}
   </Split>
