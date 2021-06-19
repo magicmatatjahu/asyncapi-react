@@ -7,9 +7,11 @@ module.exports = {
     'css.worker': 'monaco-editor/esm/vs/language/css/css.worker',
     'html.worker': 'monaco-editor/esm/vs/language/html/html.worker',
     'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker',
+    'yaml.worker': 'monaco-yaml/lib/esm/yaml.worker.js',
   },
+  mode: 'production',
   output: {
-    globalObject: 'self',
+    globalObject: 'this',
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
@@ -24,5 +26,9 @@ module.exports = {
         use: ['file-loader'],
       },
     ],
+  },
+  node: {
+    fs: 'empty',
+    module: 'empty',
   },
 };
