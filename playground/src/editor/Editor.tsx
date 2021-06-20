@@ -72,6 +72,24 @@ const global = window;
 // @ts-ignore
 let Monaco: any;
 
+const files = {
+  'script.js': {
+    name: 'script.js',
+    language: 'javascript',
+    value: 'class A {}',
+  },
+  'style.css': {
+    name: 'style.css',
+    language: 'css',
+    value: '.lol {}',
+  },
+  'index.html': {
+    name: 'index.html',
+    language: 'html',
+    value: '<div>lol</div>',
+  },
+};
+
 export interface EditorProps extends MonacoEditorProps {}
 
 export const Editor: React.FunctionComponent<EditorProps> = ({
@@ -92,8 +110,11 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
   const [showEditor, setShowEditor] = useState(true);
   const [showDoc, setShowDec] = useState(true);
 
-  const [editorHeight, setEditorHeight] = useState('calc(100% - 40px)');
+  const [editorHeight, setEditorHeight] = useState('calc(100% - 30px)');
   // const [terminalClicked, setTerminalClicked] = useState(false);
+
+  const [fileName, setFileName] = useState('script.js');
+  const file = files[fileName];
 
   function handleEditorDidMount(editor: any, monaco: any) {
     setEditor(editor);
@@ -256,16 +277,35 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
       <SplitPane
         split="horizontal"
         minSize={0}
-        maxSize={-40}
+        maxSize={-30}
         size={editorHeight}
-        defaultSize="calc(100% - 40px)"
+        defaultSize="calc(100% - 30px)"
       >
         <div className="flex flex-1 flex-col h-full overflow-hidden">
+          {/* <div 
+            className="bg-gray-800 border-b border-gray-700 text-sm"
+            style={{ height: '30px', lineHeight: '30px' }}
+          >
+            {Object.values(files).map(file => (
+              <button 
+                disabled={fileName === file.name} 
+                className={`px-3 border-r border-gray-700 text-white ${fileName === file.name ? 'bg-gray-900' : ''}`}
+                onClick={() => setFileName(file.name)}
+              >
+                {file.name}
+              </button>
+            ))}
+            {/* <button disabled={fileName === "style.css"} className="" onClick={() => setFileName("style.css")}>style.css</button>
+            <button disabled={fileName === "index.html"} className="" onClick={() => setFileName("index.html")}>index.html</button>
+          </div> */}
           <MonacoEditor
             // height="100vh" // change it
             language={language || 'yaml'}
             theme={theme || 'asyncapi-theme'}
             value={value}
+            // path={file.name}
+            // defaultLanguage={file.language}
+            // defaultValue={file.value}
             className={className}
             // beforeMount={handleEditorWillMount}
             onMount={handleEditorDidMount}
@@ -298,7 +338,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
       pane2Style={!showEditor ? { width: '0px' } : undefined}
       primary={!showEditor ? 'second' : 'first'}
       defaultSize={
-        parseInt(localStorage.getItem('splitPos:left') || '0', 10) || '50%'
+        parseInt(localStorage.getItem('splitPos:left') || '0', 10) || 220
       }
       onChange={_.debounce(
         (size: string) => localStorage.setItem('splitPos:left', String(size)),
@@ -324,7 +364,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
         pane2Style={!showDoc ? { width: '0px' } : { overflow: 'auto' }}
         primary={!showDoc ? 'second' : 'first'}
         defaultSize={
-          parseInt(localStorage.getItem('splitPos:center') || '0', 10) || '50%'
+          parseInt(localStorage.getItem('splitPos:center') || '0', 10) || '55%'
         }
         onChange={_.debounce(
           (size: string) =>
@@ -347,16 +387,14 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
     <div className="flex flex-col h-full w-full h-screen">
       <Toolbar />
       <div className="flex flex-row flex-1 overflow-hidden">
-        <div className="flex flex-col flex-none bg-gray-800 shadow-lg border-r border-gray-700">
-          <Sidebar
-            setShowNavigation={setShowNavigation}
-            showNavigation={showNavigation}
-            setShowEditor={setShowEditor}
-            showEditor={showEditor}
-            setShowDec={setShowDec}
-            showDoc={showDoc}
-          />
-        </div>
+        <Sidebar
+          setShowNavigation={setShowNavigation}
+          showNavigation={showNavigation}
+          setShowEditor={setShowEditor}
+          showEditor={showEditor}
+          setShowDec={setShowDec}
+          showDoc={showDoc}
+        />
         {/* <div
           className={`flex flex-none flex-col overflow-x-hidden overflow-y-auto bg-gray-800 border-r border-gray-700 w-48 ${
             showNavigation ? 'block' : 'hidden'

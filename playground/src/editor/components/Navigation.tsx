@@ -30,15 +30,20 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
   rawSpec,
   spec,
 }) => {
-  if (!rawSpec) {
-    return null;
+  console.log(spec);
+  if (!rawSpec || !spec || typeof spec === 'string') {
+    return (
+      <div className="flex overflow-hidden bg-gray-800 h-full justify-center items-center text-white text-lg">
+        Specification invalid
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-none flex-col overflow-x-hidden overflow-y-auto bg-gray-800">
-      <ul className="break-all">
+    <div className="flex flex-none flex-col overflow-y-auto overflow-x-hidden bg-gray-800 h-full">
+      <ul>
         <li
-          className="p-2 text-white cursor-pointer hover:bg-gray-900 mb-4"
+          className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 mb-4"
           onClick={() => goToLine(editor, '/info', rawSpec, 'introduction')}
         >
           Introduction
@@ -46,7 +51,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         {spec.hasServers() && (
           <li className="mb-4">
             <div
-              className="p-2 text-white cursor-pointer hover:bg-gray-900"
+              className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
               onClick={() => goToLine(editor, '/servers', rawSpec, 'servers')}
             >
               Servers
@@ -56,7 +61,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                 ([serverName, server]) => (
                   <li
                     key={serverName}
-                    className="p-2 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
+                    className="p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
                     onClick={() =>
                       goToLine(
                         editor,
@@ -68,13 +73,13 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                   >
                     <div className="flex flex-row">
                       <div className="flex-none">
-                        <span className="mr-2 py-1 px-2 rounded-full bg-pink-500 text-xs">
+                        <span className="mr-3 text-xs uppercase text-pink-500 font-bold">
                           {server.protocolVersion()
                             ? `${server.protocol()} ${server.protocolVersion()}`
                             : server.protocol()}
                         </span>
                       </div>
-                      <span>{serverName}</span>
+                      <span className="truncate">{serverName}</span>
                     </div>
                   </li>
                 ),
@@ -84,7 +89,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         )}
         <li className="mb-4">
           <div
-            className="p-2 text-white cursor-pointer hover:bg-gray-900"
+            className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
             onClick={() => goToLine(editor, '/channels', rawSpec, 'channels')}
           >
             Channels
@@ -98,7 +103,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                   channels.push(
                     <li
                       key={channelName}
-                      className="p-2 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
+                      className="p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
                       onClick={() =>
                         goToLine(
                           editor,
@@ -110,11 +115,11 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                     >
                       <div className="flex flex-row">
                         <div className="flex-none">
-                          <span className="mr-2 py-1 px-2 rounded-full bg-blue-500 text-xs">
-                            PUB
+                          <span className="mr-3 text-xs uppercase text-blue-500 font-bold">
+                            Pub
                           </span>
                         </div>
-                        <span>{channelName}</span>
+                        <span className="truncate">{channelName}</span>
                       </div>
                     </li>,
                   );
@@ -123,7 +128,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                   channels.push(
                     <li
                       key={channelName}
-                      className="p-2 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
+                      className="p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
                       onClick={() =>
                         goToLine(
                           editor,
@@ -135,11 +140,11 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                     >
                       <div className="flex flex-row">
                         <div className="flex-none">
-                          <span className="mr-2 py-1 px-2 rounded-full bg-green-600 text-xs">
-                            SUB
+                          <span className="mr-3 text-xs uppercase text-green-600 font-bold">
+                            Sub
                           </span>
                         </div>
-                        <span>{channelName}</span>
+                        <span className="truncate">{channelName}</span>
                       </div>
                     </li>,
                   );
@@ -153,7 +158,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         {spec.hasComponents() && spec.components().hasMessages() && (
           <li className="mb-4">
             <div
-              className="p-2 text-white cursor-pointer hover:bg-gray-900"
+              className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
               onClick={() =>
                 goToLine(editor, '/components/messages', rawSpec, 'messages')
               }
@@ -165,7 +170,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                 messageName => (
                   <li
                     key={messageName}
-                    className="p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
+                    className="p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate"
                     onClick={() =>
                       goToLine(
                         editor,
@@ -188,7 +193,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         {spec.hasComponents() && spec.components().schemas() && (
           <li className="mb-4">
             <div
-              className="p-2 text-white cursor-pointer hover:bg-gray-900"
+              className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
               onClick={() =>
                 goToLine(editor, '/components/schemas', rawSpec, 'schemas')
               }
@@ -200,7 +205,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                 schemaName => (
                   <li
                     key={schemaName}
-                    className="p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
+                    className="p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate"
                     onClick={() =>
                       goToLine(
                         editor,
