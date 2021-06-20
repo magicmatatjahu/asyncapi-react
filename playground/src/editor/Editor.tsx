@@ -10,8 +10,6 @@ import AsyncApiComponent from '@asyncapi/react-component';
 import SplitPane from 'react-split-pane';
 
 import { parse } from '@asyncapi/parser';
-// @ts-ignore
-import { yamlAST } from '@fmvilas/pseudo-yaml-ast';
 
 // @ts-ignore
 import _ from 'lodash';
@@ -90,10 +88,9 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
   const [editorValue, setEditorValue] = useState(value);
   const [errors, setErrors] = useState([]);
 
-  const [showNavigation, setShowNavigation] = useState(false);
+  const [showNavigation, setShowNavigation] = useState(true);
   const [showEditor, setShowEditor] = useState(true);
   const [showDoc, setShowDec] = useState(true);
-  const [ast, setAst] = useState(null);
 
   const [editorHeight, setEditorHeight] = useState('calc(100% - 40px)');
   // const [terminalClicked, setTerminalClicked] = useState(false);
@@ -119,8 +116,6 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
     parse(val)
       .then(v => {
         setEditorValue(v as any);
-        setAst(yamlAST(val));
-        setRawValue(val);
         setErrors([]);
       })
       .catch(e => {
@@ -131,6 +126,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
 
   const debounce = useCallback(
     _.debounce((val: string) => {
+      setRawValue(val);
       parseSpec(val);
       // setEditorValue(_searchVal);
       // send the server request here
@@ -184,14 +180,147 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
   }, []);
 
   useEffect(() => {
-    if (showEditor === false && showDoc === false) setShowDec(true);
+    // if (showEditor === false && showDoc === false) setShowDec(true);
   }, [showDoc, showEditor]);
+
+  // const secondPane = (
+  //   <div className="flex flex-1 flex-row relative">
+  //     <SplitPane
+  //       minSize={0}
+  //       pane1Style={!showEditor ? { width: '0px' } : undefined}
+  //       pane2Style={!showDoc ? { width: '0px' } : { overflow: 'auto' }}
+  //       primary={!showDoc ? 'second' : 'first'}
+  //       defaultSize={
+  //         parseInt(localStorage.getItem('splitPos:center') || '0', 10) || '50%'
+  //       }
+  //       onChange={_.debounce(
+  //         (size: string) =>
+  //           localStorage.setItem('splitPos:center', String(size)),
+  //         100,
+  //       )}
+  //     >
+  //       {/* !!!!!!! overflow-hidden class is very important !!!!!! */}
+  //       <div className="flex flex-1 overflow-hidden">
+  //         <SplitPane
+  //           split="horizontal"
+  //           minSize={0}
+  //           maxSize={-40}
+  //           size={editorHeight}
+  //           defaultSize="calc(100% - 40px)"
+  //         >
+  //           <div className="flex flex-1 flex-col h-full overflow-hidden">
+  //             <MonacoEditor
+  //               // height="100vh" // change it
+  //               language={language || 'yaml'}
+  //               theme={theme || 'asyncapi-theme'}
+  //               value={value}
+  //               className={className}
+  //               // beforeMount={handleEditorWillMount}
+  //               onMount={handleEditorDidMount}
+  //               onChange={v => {
+  //                 debounce(v);
+  //               }}
+  //               //options={options}
+  //               options={{
+  //                 wordWrap: 'on',
+  //               }}
+  //               {...props}
+  //             />
+  //           </div>
+  //           <div className="bg-gray-900 border-t border-gray-700 flex-grow relative h-full overflow-hidden">
+  //             <Terminal
+  //               editor={editor}
+  //               errors={errors}
+  //               setEditorHeight={setEditorHeight}
+  //             />
+  //           </div>
+  //         </SplitPane>
+  //       </div>
+  //       <div>
+  //       </div>
+  //       {/* <div>
+  //         <AsyncApiComponent
+  //           schema={editorValue}
+  //           config={{ show: { errors: false } }}
+  //         />
+  //       </div> */}
+  //     </SplitPane>
+  //   </div>
+  // );
+
+  {
+    /* !!!!!!! overflow-hidden class is very important !!!!!! */
+  }
+  const editorPanel = (
+    <div className="flex flex-1 overflow-hidden">
+      <SplitPane
+        split="horizontal"
+        minSize={0}
+        maxSize={-40}
+        size={editorHeight}
+        defaultSize="calc(100% - 40px)"
+      >
+        <div className="flex flex-1 flex-col h-full overflow-hidden">
+          <MonacoEditor
+            // height="100vh" // change it
+            language={language || 'yaml'}
+            theme={theme || 'asyncapi-theme'}
+            value={value}
+            className={className}
+            // beforeMount={handleEditorWillMount}
+            onMount={handleEditorDidMount}
+            onChange={v => {
+              debounce(v);
+            }}
+            //options={options}
+            options={{
+              wordWrap: 'on',
+              smoothScrolling: true,
+            }}
+            {...props}
+          />
+        </div>
+        <div className="bg-gray-900 border-t border-gray-700 flex-grow relative h-full overflow-hidden">
+          <Terminal
+            editor={editor}
+            errors={errors}
+            setEditorHeight={setEditorHeight}
+          />
+        </div>
+      </SplitPane>
+    </div>
+  );
+
+  const secondPane = (
+    <SplitPane
+      minSize={0}
+      pane1Style={!showNavigation ? { width: '0px' } : { overflow: 'auto' }}
+      pane2Style={!showEditor ? { width: '0px' } : undefined}
+      primary={!showEditor ? 'second' : 'first'}
+      defaultSize={
+        parseInt(localStorage.getItem('splitPos:left') || '0', 10) || '50%'
+      }
+      onChange={_.debounce(
+        (size: string) => localStorage.setItem('splitPos:left', String(size)),
+        100,
+      )}
+    >
+      <Navigation
+        editor={editor}
+        spec={editorValue as any}
+        rawSpec={rawValue as string}
+      />
+      {editorPanel}
+    </SplitPane>
+  );
 
   const firstPane = (
     <div className="flex flex-1 flex-row relative">
       <SplitPane
         minSize={0}
-        pane1Style={!showEditor ? { width: '0px' } : undefined}
+        pane1Style={
+          !showNavigation && !showEditor ? { width: '0px' } : undefined
+        }
         pane2Style={!showDoc ? { width: '0px' } : { overflow: 'auto' }}
         primary={!showDoc ? 'second' : 'first'}
         defaultSize={
@@ -203,43 +332,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
           100,
         )}
       >
-        {/* !!!!!!! overflow-hidden class is very important !!!!!! */}
-        <div className="flex flex-1 overflow-hidden">
-          <SplitPane
-            split="horizontal"
-            minSize={0}
-            maxSize={-40}
-            size={editorHeight}
-            defaultSize="calc(100% - 40px)"
-          >
-            <div className="flex flex-1 flex-col h-full overflow-hidden">
-              <MonacoEditor
-                // height="100vh" // change it
-                language={language || 'yaml'}
-                theme={theme || 'asyncapi-theme'}
-                value={value}
-                className={className}
-                // beforeMount={handleEditorWillMount}
-                onMount={handleEditorDidMount}
-                onChange={v => {
-                  debounce(v);
-                }}
-                //options={options}
-                options={{
-                  wordWrap: 'on',
-                }}
-                {...props}
-              />
-            </div>
-            <div className="bg-gray-900 border-t border-gray-700 flex-grow relative h-full overflow-hidden">
-              <Terminal
-                editor={editor}
-                errors={errors}
-                setEditorHeight={setEditorHeight}
-              />
-            </div>
-          </SplitPane>
-        </div>
+        {secondPane}
         <div>
           <AsyncApiComponent
             schema={editorValue}
@@ -264,7 +357,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
             showDoc={showDoc}
           />
         </div>
-        <div
+        {/* <div
           className={`flex flex-none flex-col overflow-x-hidden overflow-y-auto bg-gray-800 border-r border-gray-700 w-48 ${
             showNavigation ? 'block' : 'hidden'
           }`}
@@ -275,7 +368,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
             spec={editorValue as any}
             rawSpec={rawValue as string}
           />
-        </div>
+        </div> */}
         {firstPane}
       </div>
     </div>
