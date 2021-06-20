@@ -14,7 +14,7 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
   return (
     <div>
       <div
-        style={{ height: '40px', lineHeight: '40px' }}
+        style={{ height: '30px', lineHeight: '30x' }}
         className="flex flex-row justify-between text-white px-4 border-b border-gray-700 cursor-pointer"
         onClick={e => {
           const {
@@ -23,17 +23,17 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
           console.log(height);
           setEditorHeight((prevHeight: string) => {
             const newHeight =
-              height < 50 ? 'calc(100% - 160px)' : 'calc(100% - 40px)';
+              height < 50 ? 'calc(100% - 160px)' : 'calc(100% - 30px)';
             if (
               prevHeight === 'calc(100% - 160px)' &&
               newHeight === 'calc(100% - 160px)'
             )
               return 'calc(100% - 161px)';
             if (
-              prevHeight === 'calc(100% - 40px)' &&
-              newHeight === 'calc(100% - 40px)'
+              prevHeight === 'calc(100% - 30px)' &&
+              newHeight === 'calc(100% - 30px)'
             )
-              return 'calc(100% - 41px)';
+              return 'calc(100% - 31px)';
             return newHeight;
           });
         }}
@@ -41,8 +41,8 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
         <ul>
           <li>
             <div>
-              <span>Errors</span>
-              <span className="inline-block rounded-full bg-gray-400 px-2 py-1 ml-1 -mt-2 text-xs">
+              <span className="text-sm">Errors</span>
+              <span className="inline-block rounded-full bg-gray-400 px-1.5 py-0.5 ml-1.5 -mt-2 text-xs">
                 {errors.length || 0}
               </span>
             </div>
@@ -54,7 +54,7 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
               <span className="text-red-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="inline-block h-5 w-5 mr-1 -mt-1"
+                  className="inline-block h-5 w-5 mr-1 -mt-0.5"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -65,14 +65,14 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
                   />
                 </svg>
               </span>
-              <span>Invalid</span>
+              <span className="text-sm">Invalid</span>
             </>
           ) : (
             <>
               <span className="text-green-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="inline-block h-5 w-5 mr-1 -mt-1"
+                  className="inline-block h-5 w-5 mr-1 -mt-0.5"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -83,7 +83,7 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
                   />
                 </svg>
               </span>
-              <span>Valid</span>
+              <span className="text-sm">Valid</span>
             </>
           )}
         </div>
@@ -92,18 +92,18 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
         className="absolute overflow-auto h-auto bottom-0 right-0 left-0"
         style={{ top: '40px' }}
       >
-        <div className="flex-1 text-white px-4 pb-4 text-sm h-full relative overflow-x-hidden overflow-y-auto">
+        <div className="flex-1 text-white px-2 -mt-2 text-xs h-full relative overflow-x-hidden overflow-y-auto">
           {errors.length ? (
-            <table className="border-collapse">
+            <table className="border-collapse w-full">
               <thead>
                 <tr>
-                  <th className="p-2">Line</th>
+                  <th>Line</th>
                   <th className="p-2 text-left">Description</th>
                 </tr>
               </thead>
               <tbody>
                 {errors.map((err: any) => (
-                  <tr key={err.title}>
+                  <tr key={err.title} className="border-t border-gray-700">
                     <td
                       className="p-2 cursor-pointer text-center"
                       onClick={() => {
