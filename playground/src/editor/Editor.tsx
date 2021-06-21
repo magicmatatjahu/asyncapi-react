@@ -15,7 +15,7 @@ import { parse } from '@asyncapi/parser';
 import _ from 'lodash';
 
 import { schema } from './schema';
-import { Navigation, Sidebar, Terminal, Toolbar } from './components';
+import { Select, Navigation, Sidebar, Terminal, Toolbar } from './components';
 // import { customSchema } from "./customSchema";
 
 // NOTE: using loader syntax becuase Yaml worker imports editor.worker directly and that
@@ -93,7 +93,7 @@ const files = {
 export interface EditorProps extends MonacoEditorProps {}
 
 export const Editor: React.FunctionComponent<EditorProps> = ({
-  language,
+  // language,
   theme,
   value,
   className,
@@ -113,6 +113,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
   const [editorHeight, setEditorHeight] = useState('calc(100% - 30px)');
   // const [terminalClicked, setTerminalClicked] = useState(false);
 
+  const [language, setLanguage] = useState('yaml');
   const [fileName, setFileName] = useState('script.js');
   const file = files[fileName];
 
@@ -272,11 +273,12 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
   {
     /* !!!!!!! overflow-hidden class is very important !!!!!! */
   }
+
   const editorPanel = (
     <div className="flex flex-1 overflow-hidden">
       <SplitPane
         split="horizontal"
-        minSize={0}
+        minSize={39}
         maxSize={-30}
         size={editorHeight}
         defaultSize="calc(100% - 30px)"
@@ -295,9 +297,44 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
                 {file.name}
               </button>
             ))}
-            {/* <button disabled={fileName === "style.css"} className="" onClick={() => setFileName("style.css")}>style.css</button>
-            <button disabled={fileName === "index.html"} className="" onClick={() => setFileName("index.html")}>index.html</button>
           </div> */}
+          <div
+            className="bg-gray-800 border-b border-gray-700 text-sm flex flex-row justify-between items-center px-2"
+            style={{ height: '40px', lineHeight: '40px' }}
+          >
+            <div>
+              <span className="block rounded-md shadow-sm">
+                <button
+                  type="button"
+                  className="flex px-2 py-2 text-sm rounded-md text-gray-500 hover:text-white focus:outline-none transition ease-in-out duration-150"
+                  title="Import AsyncAPI document"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+                    <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" />
+                  </svg>
+                  Import
+                </button>
+              </span>
+            </div>
+            <label htmlFor="language-select" className="hidden">
+              Choose the langauge
+            </label>
+            <select
+              name="language"
+              id="language-select"
+              onChange={e => setLanguage(e.target.value || 'yaml')}
+              value={language}
+            >
+              <option value="yaml">YAML</option>
+              <option value="json">JSON</option>
+            </select>
+          </div>
           <MonacoEditor
             // height="100vh" // change it
             language={language || 'yaml'}
@@ -349,6 +386,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
         editor={editor}
         spec={editorValue as any}
         rawSpec={rawValue as string}
+        language={language}
       />
       {editorPanel}
     </SplitPane>

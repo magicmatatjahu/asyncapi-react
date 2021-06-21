@@ -8,12 +8,19 @@ interface NavigationProps {
   editor: any;
   rawSpec: string;
   spec: AsyncAPIDocument;
+  language: string;
 }
 
-function goToLine(editor: any, jsonPointer: any, spec: any, id: string) {
+function goToLine(
+  editor: any,
+  jsonPointer: any,
+  spec: any,
+  id: string,
+  language: string = 'yaml',
+) {
   let location = undefined;
   try {
-    location = getLocationOf(jsonPointer, spec, 'yaml');
+    location = getLocationOf(jsonPointer, spec, language);
   } catch (e) {}
 
   if (!location || typeof location.startLine !== 'number') {
@@ -29,8 +36,8 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
   editor,
   rawSpec,
   spec,
+  language,
 }) => {
-  console.log(spec);
   if (!rawSpec || !spec || typeof spec === 'string') {
     return (
       <div className="flex overflow-hidden bg-gray-800 h-full justify-center items-center text-white text-lg">
@@ -44,7 +51,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
       <ul>
         <li
           className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 mb-4"
-          onClick={() => goToLine(editor, '/info', rawSpec, 'introduction')}
+          onClick={() =>
+            goToLine(editor, '/info', rawSpec, 'introduction', language)
+          }
         >
           Introduction
         </li>
@@ -52,7 +61,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
           <li className="mb-4">
             <div
               className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
-              onClick={() => goToLine(editor, '/servers', rawSpec, 'servers')}
+              onClick={() =>
+                goToLine(editor, '/servers', rawSpec, 'servers', language)
+              }
             >
               Servers
             </div>
@@ -68,6 +79,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                         `/servers/${serverName.replace(/\//g, '~1')}`,
                         rawSpec,
                         '',
+                        language,
                       )
                     }
                   >
@@ -90,7 +102,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         <li className="mb-4">
           <div
             className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
-            onClick={() => goToLine(editor, '/channels', rawSpec, 'channels')}
+            onClick={() =>
+              goToLine(editor, '/channels', rawSpec, 'channels', language)
+            }
           >
             Channels
           </div>
@@ -110,6 +124,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                           `/channels/${channelName.replace(/\//g, '~1')}`,
                           rawSpec,
                           '',
+                          language,
                         )
                       }
                     >
@@ -135,6 +150,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                           `/channels/${channelName.replace(/\//g, '~1')}`,
                           rawSpec,
                           '',
+                          language,
                         )
                       }
                     >
@@ -160,7 +176,13 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
             <div
               className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
               onClick={() =>
-                goToLine(editor, '/components/messages', rawSpec, 'messages')
+                goToLine(
+                  editor,
+                  '/components/messages',
+                  rawSpec,
+                  'messages',
+                  language,
+                )
               }
             >
               Messages
@@ -180,6 +202,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                         )}`,
                         rawSpec,
                         '',
+                        language,
                       )
                     }
                   >
@@ -195,7 +218,13 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
             <div
               className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
               onClick={() =>
-                goToLine(editor, '/components/schemas', rawSpec, 'schemas')
+                goToLine(
+                  editor,
+                  '/components/schemas',
+                  rawSpec,
+                  'schemas',
+                  language,
+                )
               }
             >
               Schemas
@@ -215,6 +244,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                         )}`,
                         rawSpec,
                         '',
+                        language,
                       )
                     }
                   >
