@@ -15,7 +15,7 @@ import { parse } from '@asyncapi/parser';
 import _ from 'lodash';
 
 import { schema } from './schema';
-import { Select, Navigation, Sidebar, Terminal, Toolbar } from './components';
+import { Navigation, Sidebar, Terminal, Toolbar } from './components';
 // import { customSchema } from "./customSchema";
 
 // NOTE: using loader syntax becuase Yaml worker imports editor.worker directly and that
@@ -119,10 +119,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
 
   function handleEditorDidMount(editor: any, monaco: any) {
     setEditor(editor);
-    // here is another way to get monaco instance
-    // you can also store it in `useRef` for further usage
     // workaround for autocompletion
-    // console.log(editor.layout)
     // editor.onKeyUp((e: any) => {
     //   const position = editor.getPosition();
     //   const text = editor.getModel().getLineContent(position.lineNumber).trim();
@@ -130,19 +127,20 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
     //     editor.trigger('', 'editor.action.triggerSuggest', '');
     //   }
     // });
-    // editor.revealLine(45);
-    // editor.setPosition({column: 1, lineNumber: 50});
   }
 
   const parseSpec = (val: string) => {
     parse(val)
       .then(v => {
+        console.log(v);
         setEditorValue(v as any);
         setErrors([]);
       })
       .catch(e => {
+        console.log(e);
         let { validationErrors } = e;
-        setErrors(validationErrors);
+        setEditorValue('');
+        setErrors(validationErrors || [e]);
       });
   };
 
@@ -205,70 +203,72 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
     // if (showEditor === false && showDoc === false) setShowDec(true);
   }, [showDoc, showEditor]);
 
-  // const secondPane = (
-  //   <div className="flex flex-1 flex-row relative">
-  //     <SplitPane
-  //       minSize={0}
-  //       pane1Style={!showEditor ? { width: '0px' } : undefined}
-  //       pane2Style={!showDoc ? { width: '0px' } : { overflow: 'auto' }}
-  //       primary={!showDoc ? 'second' : 'first'}
-  //       defaultSize={
-  //         parseInt(localStorage.getItem('splitPos:center') || '0', 10) || '50%'
-  //       }
-  //       onChange={_.debounce(
-  //         (size: string) =>
-  //           localStorage.setItem('splitPos:center', String(size)),
-  //         100,
-  //       )}
-  //     >
-  //       {/* !!!!!!! overflow-hidden class is very important !!!!!! */}
-  //       <div className="flex flex-1 overflow-hidden">
-  //         <SplitPane
-  //           split="horizontal"
-  //           minSize={0}
-  //           maxSize={-40}
-  //           size={editorHeight}
-  //           defaultSize="calc(100% - 40px)"
-  //         >
-  //           <div className="flex flex-1 flex-col h-full overflow-hidden">
-  //             <MonacoEditor
-  //               // height="100vh" // change it
-  //               language={language || 'yaml'}
-  //               theme={theme || 'asyncapi-theme'}
-  //               value={value}
-  //               className={className}
-  //               // beforeMount={handleEditorWillMount}
-  //               onMount={handleEditorDidMount}
-  //               onChange={v => {
-  //                 debounce(v);
-  //               }}
-  //               //options={options}
-  //               options={{
-  //                 wordWrap: 'on',
-  //               }}
-  //               {...props}
-  //             />
-  //           </div>
-  //           <div className="bg-gray-900 border-t border-gray-700 flex-grow relative h-full overflow-hidden">
-  //             <Terminal
-  //               editor={editor}
-  //               errors={errors}
-  //               setEditorHeight={setEditorHeight}
-  //             />
-  //           </div>
-  //         </SplitPane>
-  //       </div>
-  //       <div>
-  //       </div>
-  //       {/* <div>
-  //         <AsyncApiComponent
-  //           schema={editorValue}
-  //           config={{ show: { errors: false } }}
-  //         />
-  //       </div> */}
-  //     </SplitPane>
-  //   </div>
-  // );
+  useEffect(() => {
+    if (init === true) {
+      setTimeout(() => {
+        let hash = window.location.hash;
+        hash = hash.substring(1);
+        try {
+          const escapedHash = CSS.escape(hash);
+          const items = document.querySelectorAll(
+            escapedHash.startsWith('#') ? escapedHash : `#${escapedHash}`,
+          );
+          if (items.length) {
+            const element = items[0];
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        } catch (e) {}
+      }, 100);
+    }
+  }, [init]);
+
+  const importFromURL = () => {
+    const url = prompt('Enter the URL to import from:');
+    const extension = url?.split('.').pop();
+
+    if (url) {
+      fetch(url)
+        .then(res => res.text())
+        .then(text => {
+          if (!text) {
+            return;
+          }
+          if (extension === 'yaml' || extension === 'yml') {
+            setLanguage('yaml');
+          } else if (extension === 'json') {
+            setLanguage('json');
+          }
+          (editor as any).getModel().setValue(text as string);
+        });
+    }
+  };
+
+  const importFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target?.files;
+    if (files?.length !== 1) {
+      return;
+    }
+    const file = files.item(0);
+    if (!file) {
+      return;
+    }
+    const extension = file.name.split('.').pop();
+
+    const fileReader = new FileReader();
+    fileReader.onload = fileLoadedEvent => {
+      const content = fileLoadedEvent.target?.result;
+      if (!content) {
+        return;
+      }
+      if (extension === 'yaml' || extension === 'yml') {
+        setLanguage('yaml');
+      } else if (extension === 'json') {
+        setLanguage('json');
+      }
+      (editor as any).getModel().setValue(content as string);
+    };
+    fileReader.readAsText(file, 'UTF-8');
+  };
 
   {
     /* !!!!!!! overflow-hidden class is very important !!!!!! */
@@ -300,14 +300,15 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
           </div> */}
           <div
             className="bg-gray-800 border-b border-gray-700 text-sm flex flex-row justify-between items-center px-2"
-            style={{ height: '40px', lineHeight: '40px' }}
+            style={{ height: '40px', lineHeight: '40' }}
           >
-            <div>
-              <span className="block rounded-md shadow-sm">
+            <div className="flex flex-row">
+              <div className="block rounded-md shadow-sm">
                 <button
                   type="button"
                   className="flex px-2 py-2 text-sm rounded-md text-gray-500 hover:text-white focus:outline-none transition ease-in-out duration-150"
                   title="Import AsyncAPI document"
+                  onClick={importFromURL}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -315,25 +316,54 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
-                    <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
-                    <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M2 9.5A3.5 3.5 0 005.5 13H9v2.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 15.586V13h2.5a4.5 4.5 0 10-.616-8.958 4.002 4.002 0 10-7.753 1.977A3.5 3.5 0 002 9.5zm9 3.5H9V8a1 1 0 012 0v5z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  Import
+                  Import URL
                 </button>
-              </span>
+              </div>
+              <div>
+                <div className="block rounded-md shadow-sm">
+                  <label
+                    className="flex px-2 py-2 text-sm rounded-md text-gray-500 hover:text-white focus:outline-none transition ease-in-out duration-150 cursor-pointer"
+                    title="Import AsyncAPI document"
+                  >
+                    <input
+                      type="file"
+                      style={{ position: 'fixed', top: '-100em' }}
+                      onChange={importFile}
+                    />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path d="M8.707 7.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 00-1.414-1.414L11 7.586V3a1 1 0 10-2 0v4.586l-.293-.293z" />
+                      <path d="M3 5a2 2 0 012-2h1a1 1 0 010 2H5v7h2l1 2h4l1-2h2V5h-1a1 1 0 110-2h1a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
+                    </svg>
+                    Import File
+                  </label>
+                </div>
+              </div>
             </div>
-            <label htmlFor="language-select" className="hidden">
-              Choose the langauge
-            </label>
-            <select
-              name="language"
-              id="language-select"
-              onChange={e => setLanguage(e.target.value || 'yaml')}
-              value={language}
-            >
-              <option value="yaml">YAML</option>
-              <option value="json">JSON</option>
-            </select>
+            <div className="px-1">
+              <label htmlFor="language-select" className="hidden">
+                Choose the langauge
+              </label>
+              <select
+                name="language"
+                id="language-select"
+                onChange={e => setLanguage(e.target.value || 'yaml')}
+                value={language}
+              >
+                <option value="yaml">YAML</option>
+                <option value="json">JSON</option>
+              </select>
+            </div>
           </div>
           <MonacoEditor
             // height="100vh" // change it
@@ -433,18 +463,6 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
           setShowDec={setShowDec}
           showDoc={showDoc}
         />
-        {/* <div
-          className={`flex flex-none flex-col overflow-x-hidden overflow-y-auto bg-gray-800 border-r border-gray-700 w-48 ${
-            showNavigation ? 'block' : 'hidden'
-          }`}
-        >
-          <Navigation
-            editor={editor}
-            ast={ast}
-            spec={editorValue as any}
-            rawSpec={rawValue as string}
-          />
-        </div> */}
         {firstPane}
       </div>
     </div>

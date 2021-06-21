@@ -11,7 +11,6 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
   errors = [],
   setEditorHeight,
 }) => {
-  console.log(errors);
   return (
     <div>
       <div
@@ -21,7 +20,7 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
           const {
             height,
           } = e.currentTarget.parentElement!.parentElement!.getClientRects()[0];
-          console.log(height);
+          // console.log(height);
           setEditorHeight((prevHeight: string) => {
             const newHeight =
               height < 50 ? 'calc(100% - 160px)' : 'calc(100% - 30px)';

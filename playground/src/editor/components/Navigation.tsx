@@ -15,7 +15,7 @@ function goToLine(
   editor: any,
   jsonPointer: any,
   spec: any,
-  id: string,
+  hash: string,
   language: string = 'yaml',
 ) {
   let location = undefined;
@@ -27,9 +27,22 @@ function goToLine(
     return;
   }
 
-  window.history.pushState(undefined, '', `#${id}`);
+  try {
+    const escapedHash = CSS.escape(hash);
+    const items = document.querySelectorAll(
+      escapedHash.startsWith('#') ? escapedHash : `#${escapedHash}`,
+    );
+    if (items.length) {
+      const element = items[0];
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  } catch (e) {}
+
   (editor as any).revealLineInCenter(location.startLine);
   (editor as any).setPosition({ column: 1, lineNumber: location.startLine });
+
+  hash = hash.startsWith('#') ? hash : `#${hash}`;
+  window.history.pushState(undefined, '', hash);
 }
 
 export const Navigation: React.FunctionComponent<NavigationProps> = ({
@@ -103,7 +116,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
           <div
             className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
             onClick={() =>
-              goToLine(editor, '/channels', rawSpec, 'channels', language)
+              goToLine(editor, '/channels', rawSpec, 'operations', language)
             }
           >
             Channels
@@ -123,7 +136,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                           editor,
                           `/channels/${channelName.replace(/\//g, '~1')}`,
                           rawSpec,
-                          '',
+                          `operation-publish-${channelName}`,
                           language,
                         )
                       }
@@ -149,7 +162,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                           editor,
                           `/channels/${channelName.replace(/\//g, '~1')}`,
                           rawSpec,
-                          '',
+                          `operation-subscribe-${channelName}`,
                           language,
                         )
                       }
@@ -201,7 +214,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                           '~1',
                         )}`,
                         rawSpec,
-                        '',
+                        `message-${messageName}`,
                         language,
                       )
                     }
@@ -243,7 +256,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                           '~1',
                         )}`,
                         rawSpec,
-                        '',
+                        `schema-${schemaName}`,
                         language,
                       )
                     }
