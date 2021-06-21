@@ -16,6 +16,14 @@ import _ from 'lodash';
 
 import { schema } from './schema';
 import { Navigation, Sidebar, Terminal, Toolbar } from './components';
+import {
+  errorHasLocation,
+  isValidationError,
+  isJsonError,
+  isYamlError,
+  isUnsupportedVersionError,
+  isDereferenceError,
+} from './helpers';
 // import { customSchema } from "./customSchema";
 
 // NOTE: using loader syntax becuase Yaml worker imports editor.worker directly and that
@@ -71,6 +79,8 @@ const global = window;
 // let editor: any;
 // @ts-ignore
 let Monaco: any;
+// Monaco editor
+let _Editor: any;
 
 const files = {
   'script.js': {
@@ -90,6 +100,39 @@ const files = {
   },
 };
 
+const setMarkersAndDecorations = (errors: any[], decorations: any[]) => {
+  const newDecorations: any[] = [];
+
+  errors.forEach(err => {
+    const { title, detail, location } = err;
+    if (!location) {
+      console.error('Error must have a `location` property.');
+      return console.error(err);
+    }
+    const { startLine, startColumn, endLine, endColumn } = location;
+
+    const markerOptions: any = {
+      startLineNumber: startLine,
+      startColumn: startColumn,
+      message: `${title}${detail ? '\n' + detail : ''}`,
+    };
+
+    if (typeof endLine === 'number') markerOptions.endLineNumber = endLine;
+    if (typeof endColumn === 'number') markerOptions.endColumn = endColumn;
+
+    Monaco.editor.setModelMarkers(_Editor.getModel(), 'test', [markerOptions]);
+
+    if (typeof endLine === 'number' && typeof endColumn === 'number') {
+      newDecorations.push({
+        range: new Monaco.Range(startLine, startColumn, endLine, endColumn),
+        options: { inlineClassName: 'bg-red-500-20' },
+      });
+    }
+  });
+
+  return _Editor.deltaDecorations(decorations, newDecorations);
+};
+
 export interface EditorProps extends MonacoEditorProps {}
 
 export const Editor: React.FunctionComponent<EditorProps> = ({
@@ -104,6 +147,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
   const [editor, setEditor] = useState(null);
   const [rawValue, setRawValue] = useState(value);
   const [editorValue, setEditorValue] = useState(value);
+  const [rawError, setRawError] = useState(null);
   const [errors, setErrors] = useState([]);
 
   const [showNavigation, setShowNavigation] = useState(true);
@@ -113,11 +157,14 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
   const [editorHeight, setEditorHeight] = useState('calc(100% - 30px)');
   // const [terminalClicked, setTerminalClicked] = useState(false);
 
+  const [decorations, setDecorations] = useState([]);
+
   const [language, setLanguage] = useState('yaml');
   const [fileName, setFileName] = useState('script.js');
   const file = files[fileName];
 
   function handleEditorDidMount(editor: any, monaco: any) {
+    _Editor = editor;
     setEditor(editor);
     // workaround for autocompletion
     // editor.onKeyUp((e: any) => {
@@ -132,15 +179,22 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
   const parseSpec = (val: string) => {
     parse(val)
       .then(v => {
-        console.log(v);
         setEditorValue(v as any);
         setErrors([]);
       })
       .catch(e => {
-        console.log(e);
-        let { validationErrors } = e;
+        let _errors = [];
+        if (isValidationError(e) || isUnsupportedVersionError(e))
+          _errors = e.validationErrors;
+        if (isYamlError(e) || isJsonError(e)) _errors = [e];
+        if (isDereferenceError(e))
+          _errors = e.refs.map((ref: any) => ({
+            title: e.title,
+            location: { ...ref },
+          }));
         setEditorValue('');
-        setErrors(validationErrors || [e]);
+        setRawError(e);
+        setErrors(_errors);
       });
   };
 
@@ -222,6 +276,53 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
     }
   }, [init]);
 
+  const setErrorMarkers = () => {
+    if (!editor || !Monaco) return;
+
+    (editor as any).deltaDecorations(decorations, []);
+    Monaco.editor.setModelMarkers((editor as any).getModel(), 'test', []);
+
+    if (errorHasLocation(rawError)) {
+      let _errors = [];
+      if (isValidationError(rawError) || isUnsupportedVersionError(rawError))
+        _errors = (rawError as any).validationErrors;
+      if (isYamlError(rawError) || isJsonError(rawError)) _errors = [rawError];
+      if (isDereferenceError(rawError))
+        _errors = (rawError as any).refs.map((ref: any) => ({
+          title: (rawError as any).title,
+          location: { ...ref },
+        }));
+
+      setDecorations(setMarkersAndDecorations(errors, decorations));
+    } else if (rawError) {
+      const fullRange = (editor as any).getModel().getFullModelRange();
+
+      Monaco.editor.setModelMarkers((editor as any).getModel(), 'test', [
+        {
+          startLineNumber: fullRange.startLineNumber,
+          startColumn: fullRange.startColumnNumber,
+          endLineNumber: fullRange.endLineNumber,
+          endColumn: fullRange.endColumnNumber,
+          message: `${(rawError as any).title}${
+            (rawError as any).detail ? '\n' + (rawError as any).detail : ''
+          }`,
+        },
+      ]);
+      setDecorations(
+        (editor as any).deltaDecorations(decorations, [
+          {
+            range: (editor as any).getModel().getFullModelRange(),
+            options: { inlineClassName: 'bg-red-500-20' },
+          },
+        ]),
+      );
+    }
+  };
+
+  useEffect(() => {
+    setErrorMarkers();
+  }, [errors]);
+
   const importFromURL = () => {
     const url = prompt('Enter the URL to import from:');
     const extension = url?.split('.').pop();
@@ -299,10 +400,13 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
             ))}
           </div> */}
           <div
-            className="bg-gray-800 border-b border-gray-700 text-sm flex flex-row justify-between items-center px-2"
+            className="bg-gray-800 border-b border-gray-700 text-sm px-2"
             style={{ height: '40px', lineHeight: '40' }}
           >
-            <div className="flex flex-row">
+            <div
+              className="flex flex-row items-center"
+              style={{ height: '40px', lineHeight: '40' }}
+            >
               <div className="block rounded-md shadow-sm">
                 <button
                   type="button"
@@ -322,7 +426,7 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
                       clipRule="evenodd"
                     />
                   </svg>
-                  Import URL
+                  Import from URL
                 </button>
               </div>
               <div>
@@ -350,20 +454,23 @@ export const Editor: React.FunctionComponent<EditorProps> = ({
                 </div>
               </div>
             </div>
-            <div className="px-1">
+            {/* <div className="px-1">
               <label htmlFor="language-select" className="hidden">
                 Choose the langauge
               </label>
               <select
+                className=""
                 name="language"
                 id="language-select"
-                onChange={e => setLanguage(e.target.value || 'yaml')}
+                onChange={e => {
+                  setLanguage(e.target.value || 'yaml');
+                }}
                 value={language}
               >
                 <option value="yaml">YAML</option>
                 <option value="json">JSON</option>
               </select>
-            </div>
+            </div> */}
           </div>
           <MonacoEditor
             // height="100vh" // change it
