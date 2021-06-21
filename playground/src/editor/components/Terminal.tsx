@@ -11,6 +11,7 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
   errors = [],
   setEditorHeight,
 }) => {
+  console.log(errors);
   return (
     <div>
       <div
@@ -107,14 +108,16 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
                     <td
                       className="p-2 cursor-pointer text-center"
                       onClick={() => {
-                        (editor as any).revealLine(err.location.startLine);
+                        (editor as any).revealLine(
+                          err.location?.startLine || 0,
+                        );
                         (editor as any).setPosition({
                           column: 1,
-                          lineNumber: err.location.startLine,
+                          lineNumber: err.location?.startLine || 0,
                         });
                       }}
                     >
-                      {err.location.startLine}
+                      {err.location?.startLine || '-'}
                     </td>
                     <td className="p-2 text-left">{err.title}</td>
                   </tr>

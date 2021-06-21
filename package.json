@@ -106,5 +106,10 @@
       ],
       "@semantic-release/github"
     ]
+  },
+  "dependencies": {
+    "@asyncapi/parser": "^1.5.2",
+    "@monaco-editor/react": "^4.2.1",
+    "react-split-pane": "^0.1.92"
   }
 }
