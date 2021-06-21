@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { AsyncAPIDocument } from '@asyncapi/parser';
 // @ts-ignore
@@ -42,7 +42,8 @@ function goToLine(
   (editor as any).setPosition({ column: 1, lineNumber: location.startLine });
 
   hash = hash.startsWith('#') ? hash : `#${hash}`;
-  window.history.pushState(undefined, '', hash);
+  window.history.pushState({}, '', hash);
+  window.dispatchEvent(new HashChangeEvent('hashchange'));
 }
 
 export const Navigation: React.FunctionComponent<NavigationProps> = ({
@@ -51,6 +52,19 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
   spec,
   language,
 }) => {
+  const [hash, setHash] = useState(window.location.hash);
+
+  useEffect(() => {
+    setHash(window.location.hash.substring(1));
+    const fn = () => {
+      setHash(window.location.hash.substring(1));
+    };
+    window.addEventListener('hashchange', fn);
+    return () => {
+      window.removeEventListener('hashchange', fn);
+    };
+  }, []);
+
   if (!rawSpec || !spec || typeof spec === 'string') {
     return (
       <div className="flex overflow-hidden bg-gray-800 h-full justify-center items-center text-white text-lg">
@@ -59,11 +73,14 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
     );
   }
 
+  // TODO: Change all li to <a href={id}>
   return (
     <div className="flex flex-none flex-col overflow-y-auto overflow-x-hidden bg-gray-800 h-full">
       <ul>
         <li
-          className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 mb-4"
+          className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 mb-4 ${
+            hash === 'introduction' ? 'bg-gray-900' : ''
+          }`}
           onClick={() =>
             goToLine(editor, '/info', rawSpec, 'introduction', language)
           }
@@ -73,7 +90,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         {spec.hasServers() && (
           <li className="mb-4">
             <div
-              className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
+              className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
+                hash === 'servers' ? 'bg-gray-900' : ''
+              }`}
               onClick={() =>
                 goToLine(editor, '/servers', rawSpec, 'servers', language)
               }
@@ -85,13 +104,15 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                 ([serverName, server]) => (
                   <li
                     key={serverName}
-                    className="p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
+                    className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
+                      hash === `server-${serverName}` ? 'bg-gray-900' : ''
+                    }`}
                     onClick={() =>
                       goToLine(
                         editor,
                         `/servers/${serverName.replace(/\//g, '~1')}`,
                         rawSpec,
-                        '',
+                        `server-${serverName}`,
                         language,
                       )
                     }
@@ -114,7 +135,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         )}
         <li className="mb-4">
           <div
-            className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
+            className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
+              hash === 'operations' ? 'bg-gray-900' : ''
+            }`}
             onClick={() =>
               goToLine(editor, '/channels', rawSpec, 'operations', language)
             }
@@ -130,7 +153,11 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                   channels.push(
                     <li
                       key={channelName}
-                      className="p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
+                      className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
+                        hash === `operation-publish-${channelName}`
+                          ? 'bg-gray-900'
+                          : ''
+                      }`}
                       onClick={() =>
                         goToLine(
                           editor,
@@ -156,7 +183,11 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                   channels.push(
                     <li
                       key={channelName}
-                      className="p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900"
+                      className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
+                        hash === `operation-subscribe-${channelName}`
+                          ? 'bg-gray-900'
+                          : ''
+                      }`}
                       onClick={() =>
                         goToLine(
                           editor,
@@ -187,7 +218,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         {spec.hasComponents() && spec.components().hasMessages() && (
           <li className="mb-4">
             <div
-              className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
+              className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
+                hash === 'messages' ? 'bg-gray-900' : ''
+              }`}
               onClick={() =>
                 goToLine(
                   editor,
@@ -205,7 +238,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                 messageName => (
                   <li
                     key={messageName}
-                    className="p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate"
+                    className={`p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate ${
+                      hash === `message-${messageName}` ? 'bg-gray-900' : ''
+                    }`}
                     onClick={() =>
                       goToLine(
                         editor,
@@ -229,7 +264,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
         {spec.hasComponents() && spec.components().schemas() && (
           <li className="mb-4">
             <div
-              className="p-2 pl-3 text-white cursor-pointer hover:bg-gray-900"
+              className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
+                hash === 'schemas' ? 'bg-gray-900' : ''
+              }`}
               onClick={() =>
                 goToLine(
                   editor,
@@ -247,7 +284,9 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
                 schemaName => (
                   <li
                     key={schemaName}
-                    className="p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate"
+                    className={`p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate ${
+                      hash === `schema-${schemaName}` ? 'bg-gray-900' : ''
+                    }`}
                     onClick={() =>
                       goToLine(
                         editor,
