@@ -107,7 +107,7 @@ export const Terminal: React.FunctionComponent<TerminalProps> = ({
                     <td
                       className="p-2 cursor-pointer text-center"
                       onClick={() => {
-                        (editor as any).revealLine(
+                        (editor as any).revealLineInCenter(
                           err.location?.startLine || 0,
                         );
                         (editor as any).setPosition({
