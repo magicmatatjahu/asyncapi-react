@@ -1,6 +1,19 @@
 import React from 'react';
+import { WrapperComponent } from './WrapperComponent';
 
 export const Toolbar: React.FunctionComponent = () => {
+  if (true) {
+    return (
+      <WrapperComponent>
+        {() => (
+          <div>
+            <div>lol</div>
+          </div>
+        )}
+      </WrapperComponent>
+    );
+  }
+
   return (
     <div>
       <div className="px-4 border-b border-gray-700 bg-gray-800">

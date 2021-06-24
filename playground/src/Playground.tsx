@@ -4,17 +4,17 @@ import React, { Component } from 'react';
 
 import { Editor } from './editor';
 
-import // RefreshIcon,
-// Navigation,
-// CodeEditorComponent,
-// FetchSchema,
-// Tabs,
-// Tab,
-// PlaygroundWrapper,
-// CodeEditorsWrapper,
-// AsyncApiWrapper,
-// SplitWrapper,
-'./components';
+// import // RefreshIcon,
+// // Navigation,
+// // CodeEditorComponent,
+// // FetchSchema,
+// // Tabs,
+// // Tab,
+// // PlaygroundWrapper,
+// // CodeEditorsWrapper,
+// // AsyncApiWrapper,
+// // SplitWrapper,
+// './components';
 
 // import { defaultConfig, parse, debounce } from './common';
 import { defaultConfig, debounce } from './common';
