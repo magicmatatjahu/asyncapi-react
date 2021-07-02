@@ -1,18 +1,27 @@
 import React from 'react';
 import { WrapperComponent } from './WrapperComponent';
 
-export const Toolbar: React.FunctionComponent = () => {
-  if (true) {
-    return (
-      <WrapperComponent>
-        {() => (
-          <div>
-            <div>lol</div>
-          </div>
-        )}
-      </WrapperComponent>
-    );
+const capture = (args: any) => {
+  if (args.type === 'div') {
+    return true;
   }
+  return false;
+};
+
+const Component: React.FunctionComponent = props => {
+  console.log(props);
+  return <div>dupa</div>;
+};
+
+export const Toolbar: React.FunctionComponent = () => {
+  return (
+    <WrapperComponent capture={capture} component={Component}>
+      <div>lol</div>
+      <div>
+        <div>lol</div>
+      </div>
+    </WrapperComponent>
+  );
 
   return (
     <div>
