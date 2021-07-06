@@ -142,7 +142,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = ({
               goToLine(editor, '/channels', rawSpec, 'operations', language)
             }
           >
-            Channels
+            Operations
           </div>
           <ul>
             {Object.entries(spec.channels() || {}).map(

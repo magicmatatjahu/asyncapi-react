@@ -1,25 +1,27 @@
 import React from 'react';
-import { WrapperComponent } from './WrapperComponent';
+import { WrapperComponent, jsx } from './WrapperComponent';
 
-const capture = (args: any) => {
-  if (args.type === 'div') {
+const capture = (type: string, props: any) => {
+  if (type === 'div' && props.children === 'lol') {
     return true;
   }
   return false;
 };
 
 const Component: React.FunctionComponent = props => {
-  console.log(props);
   return <div>dupa</div>;
 };
 
 export const Toolbar: React.FunctionComponent = () => {
   return (
     <WrapperComponent capture={capture} component={Component}>
-      <div>lol</div>
-      <div>
-        <div>lol</div>
-      </div>
+      <jsx.div>lol</jsx.div>
+      <jsx.span>lol</jsx.span>
+      <jsx.div>
+        <jsx.div>lol</jsx.div>
+        <jsx.div>lol</jsx.div>
+        <jsx.div>lol</jsx.div>
+      </jsx.div>
     </WrapperComponent>
   );
 
