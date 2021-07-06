@@ -1,4 +1,42 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
+
+const PluginContext = createContext<WrapperComponentProps | null>(null);
+
+interface WrapperComponentProps {
+  // capture: (node: React.ReactNode) => boolean;
+  capture: (type: string, props: any) => boolean;
+  component: React.ElementType;
+}
+
+function customElement<E = HTMLElement, A = React.HTMLAttributes<E>>(
+  type: keyof HTMLElementTagNameMap,
+): React.FunctionComponent<React.DetailedHTMLProps<A, E>> {
+  return props => {
+    const context = useContext(PluginContext);
+    if (context === null || context.capture(type, props) === false) {
+      return jsx.createElement(type, props, props.children);
+    }
+    return jsx.createElement(context.component, props, props.children);
+  };
+}
+
+export const jsx = {
+  createElement: React.createElement,
+  div: customElement<HTMLDivElement>('div'),
+  span: customElement<HTMLSpanElement>('span'),
+};
+
+export const WrapperComponent: React.FunctionComponent<WrapperComponentProps> = ({
+  capture,
+  component,
+  children,
+}) => {
+  return (
+    <PluginContext.Provider value={{ capture, component }}>
+      {children}
+    </PluginContext.Provider>
+  );
+};
 
 // const originalCreateElement = React.createElement;
 // React.createElement = function (type: any, props: any, ...children: any[]): any {
@@ -9,45 +47,45 @@ import React from 'react';
 //   return originalCreateElement(type, props, ...(children || []));
 // }
 
-interface WrapperComponentProps {
-  capture: (node: React.ReactNode) => boolean;
-  component: React.ElementType;
-}
+// interface WrapperComponentProps {
+//   capture: (node: React.ReactNode) => boolean;
+//   component: React.ElementType;
+// }
 
-function checkElement(
-  node: React.ReactNode | React.ReactNodeArray,
-  props: WrapperComponentProps,
-): React.ReactNode {
-  if (!node) {
-    return null;
-  }
-  if (Array.isArray(node)) {
-    return node.map(n => checkElement(n, props));
-  }
-  if (props.capture(node)) {
-    return <props.component {...(node as any).props} />;
-  }
-  const children = (node as any)?.props?.children;
-  if (children) {
-    return {
-      ...(node as any),
-      props: {
-        ...(node as any).props,
-        children: checkElement(children, props),
-      },
-    };
-  }
-  return node;
-}
+// function checkElement(
+//   node: React.ReactNode | React.ReactNodeArray,
+//   props: WrapperComponentProps,
+// ): React.ReactNode {
+//   if (!node) {
+//     return null;
+//   }
+//   if (Array.isArray(node)) {
+//     return node.map(n => checkElement(n, props));
+//   }
+//   if (props.capture(node)) {
+//     return <props.component {...(node as any).props} />;
+//   }
+//   const children = (node as any)?.props?.children;
+//   if (children) {
+//     return {
+//       ...(node as any),
+//       props: {
+//         ...(node as any).props,
+//         children: checkElement(children, props),
+//       },
+//     };
+//   }
+//   return node;
+// }
 
-export const WrapperComponent: React.FunctionComponent<WrapperComponentProps> = ({
-  capture,
-  component,
-  children,
-}) => {
-  return checkElement(children, { capture, component }) as any;
-  // return null;
-};
+// export const WrapperComponent: React.FunctionComponent<WrapperComponentProps> = ({
+//   capture,
+//   component,
+//   children,
+// }) => {
+//   return checkElement(children, { capture, component }) as any;
+//   // return null;
+// };
 
 // import React from 'react';
 
