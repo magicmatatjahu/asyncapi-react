@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 // import { ConfigInterface } from '@asyncapi/react-component';
-// import AsyncApiEditor from '@asyncapi/editor';
+import AsyncApiEditor from '@asyncapi/editor';
 
 import { Editor } from './editor';
 
@@ -21,6 +21,28 @@ import { defaultConfig, debounce } from './common';
 import * as specs from './specs';
 
 const defaultSchema = specs.streetlights;
+
+(window as any).MonacoEnvironment = {
+  getWorkerUrl: function(_: any, label: string) {
+    console.log(label);
+    if (label === 'json') {
+      return '../../js/json.worker.bundle.js';
+    }
+    if (label === 'css' || label === 'scss' || label === 'less') {
+      return '../../js/css.worker.bundle.js';
+    }
+    if (label === 'html' || label === 'handlebars' || label === 'razor') {
+      return '../../js/html.worker.bundle.js';
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return '../../js/ts.worker.bundle.js';
+    }
+    if (label === 'yaml' || label === 'yml') {
+      return '../../js/yaml.worker.bundle.js';
+    }
+    return '../../js/editor.worker.bundle.js';
+  },
+};
 
 interface State {
   schema: string;
@@ -57,10 +79,12 @@ class Playground extends Component<{}, State> {
   }
 
   render() {
+    return <AsyncApiEditor />;
+
     // const { schema, config } = this.state;
     // const parsedConfig = parse<ConfigInterface>(config || defaultConfig);
 
-    return <Editor value={defaultSchema} />;
+    // return <Editor value={defaultSchema} />;
 
     // return (
     //   <AsyncApiEditor

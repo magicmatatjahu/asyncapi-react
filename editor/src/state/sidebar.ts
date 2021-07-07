@@ -1,23 +1,21 @@
-import { persist } from 'easy-peasy';
+import { createState, useState } from '@hookstate/core';
 
-export enum PanelType {
-  NAVIGATION = 'navigation',
-  EDITOR = 'editor',
-  TEMPLATE = 'tempalte',
-}
-
-export interface NavigationModel {
+export interface SidebarState {
   panels: {
-    [PanelType.NAVIGATION]: boolean;
-    [PanelType.EDITOR]: boolean;
-    [PanelType.TEMPLATE]: boolean;
+    navigation: boolean;
+    editor: boolean;
+    template: boolean;
   };
 }
 
-// const tavigationModel = persist<NavigationModel>({
-//   panels: {
+export const sidebarState = createState<SidebarState>({
+  panels: {
+    navigation: true,
+    editor: true,
+    template: true,
+  },
+});
 
-//   }
-// }, { storage: 'localStorage' })
-
-// export default todosModel;
+export function useSidebarState() {
+  return useState(sidebarState);
+}

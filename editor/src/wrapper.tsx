@@ -1,7 +1,7 @@
 import React from 'react';
 import AsyncApiComponent, { AsyncApiProps } from '@asyncapi/react-component';
 
-import { Editor, EditorProps } from './components';
+import { Editor, EditorProps, Content, Sidebar, Toolbar } from './components';
 
 export interface AsyncApiEditorProps {
   componentProps?: AsyncApiProps;
@@ -16,12 +16,17 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
   monacoEditor = {},
 }) => {
   return (
-    <div>
-      <Editor {...monacoEditor} />
+    <div className="flex flex-col h-full w-full h-screen">
+      <Toolbar />
+      <div className="flex flex-row flex-1 overflow-hidden">
+        <Sidebar />
+        <Content />
+      </div>
+      {/* <Editor {...monacoEditor} />
       <AsyncApiComponent
         schema={componentProps.schema}
         config={componentProps.config}
-      />
+      /> */}
     </div>
   );
 };
