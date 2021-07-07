@@ -2,6 +2,7 @@ export function debounce(func: Function, wait: number, immediate?: boolean) {
   let timeout: NodeJS.Timeout;
 
   return function executedFunction() {
+    // @ts-ignore
     const context = this;
     const args = arguments;
 

@@ -3,8 +3,9 @@ import MonacoEditor, {
   EditorProps as MonacoEditorProps,
 } from '@monaco-editor/react';
 
+import { debounce } from '../helpers';
+import { ConverterService, MonacoService, ParserService } from '../services';
 import state from '../state';
-import { debounce, loadMonaco, parseSpec } from '../helpers';
 
 export interface EditorWrapperProps extends MonacoEditorProps {}
 
@@ -16,7 +17,7 @@ export const EditorWrapper: React.FunctionComponent<EditorWrapperProps> = ({
   function handleEditorDidMount(editor: any) {
     // editorState.editor.set(editor);
     (window as any).Editor = editor;
-    parseSpec(editorState.editorValue.value);
+    ParserService.parseSpec(editorState.editorValue.value);
     // workaround for autocompletion
     // editor.onKeyUp((e: any) => {
     //   const position = editor.getPosition();
@@ -27,8 +28,14 @@ export const EditorWrapper: React.FunctionComponent<EditorWrapperProps> = ({
     // });
   }
 
+  const onChange = debounce((v: string) => {
+    editorState.language.set(ConverterService.retrieveLangauge(v));
+    editorState.editorValue.set(v);
+    ParserService.parseSpec(v);
+  }, 250);
+
   useEffect(() => {
-    loadMonaco();
+    MonacoService.loadMonaco();
   }, []);
 
   return editorState.monaco.get() ? (
@@ -42,10 +49,7 @@ export const EditorWrapper: React.FunctionComponent<EditorWrapperProps> = ({
       // className={className}
       // beforeMount={handleEditorWillMount}
       onMount={handleEditorDidMount}
-      onChange={debounce((v: string) => {
-        parseSpec(v);
-        editorState.editorValue.set(v);
-      }, 250)}
+      onChange={onChange}
       options={{
         wordWrap: 'on',
         smoothScrolling: true,

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ConverterService } from '../services';
 import state from '../state';
 
 interface TerminalProps {}
@@ -13,7 +14,7 @@ export const Terminal: React.FunctionComponent<TerminalProps> = () => {
   return (
     <div>
       <div
-        style={{ height: '30px', lineHeight: '30x' }}
+        style={{ height: '30px', lineHeight: '30px' }}
         className="flex flex-row justify-between text-white px-4 border-b border-gray-700 cursor-pointer"
         onClick={e => {
           const {
@@ -47,9 +48,9 @@ export const Terminal: React.FunctionComponent<TerminalProps> = () => {
             </div>
           </li>
         </ul>
-        <div>
+        <div className="flex flex-row">
           {errors.length ? (
-            <>
+            <div>
               <span className="text-red-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -65,9 +66,9 @@ export const Terminal: React.FunctionComponent<TerminalProps> = () => {
                 </svg>
               </span>
               <span className="text-sm">Invalid</span>
-            </>
+            </div>
           ) : (
-            <>
+            <div>
               <span className="text-green-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -83,8 +84,13 @@ export const Terminal: React.FunctionComponent<TerminalProps> = () => {
                 </svg>
               </span>
               <span className="text-sm">Valid</span>
-            </>
+            </div>
           )}
+          <div className="ml-3">
+            <span className="text-sm uppercase">
+              {editorState.language.get()}
+            </span>
+          </div>
         </div>
       </div>
       <div
@@ -96,7 +102,7 @@ export const Terminal: React.FunctionComponent<TerminalProps> = () => {
             <table className="border-collapse w-full">
               <thead>
                 <tr>
-                  <th>Line</th>
+                  <th className="w-8">Line</th>
                   <th className="p-2 text-left">Description</th>
                 </tr>
               </thead>
@@ -106,9 +112,10 @@ export const Terminal: React.FunctionComponent<TerminalProps> = () => {
                     <td
                       className="p-2 cursor-pointer text-center"
                       onClick={() => {
-                        const editor = editorState.editor.get();
-                        editor.revealLineInCenter(err.location?.startLine || 0);
-                        editor.setPosition({
+                        (window as any).Editor.revealLineInCenter(
+                          err.location?.startLine || 0,
+                        );
+                        (window as any).Editor.setPosition({
                           column: 1,
                           lineNumber: err.location?.startLine || 0,
                         });
