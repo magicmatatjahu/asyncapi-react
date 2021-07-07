@@ -13,11 +13,13 @@ export const HTMLWrapper: React.FunctionComponent<HTMLWrapperProps> = () => {
     : null;
 
   return (
-    <div>
-      <AsyncApiComponentWP
-        schema={parsedSpec}
-        config={{ show: { errors: false } }}
-      />
-    </div>
+    parsedSpec && (
+      <div>
+        <AsyncApiComponentWP
+          schema={parsedSpec}
+          config={{ show: { errors: false } }}
+        />
+      </div>
+    )
   );
 };
