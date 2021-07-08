@@ -45,7 +45,7 @@ export const Dropdown: React.FunctionComponent<DropdownProps> = ({
       </button>
       <div
         className={`${
-          open ? 'block' : 'hidden'
+          open ? 'visible' : 'invisible'
         } origin-top-right absolute ${align === 'right' &&
           'right-0'} ${align === 'left' &&
           'left-0'} mt-1 mr-3 w-64 rounded-md shadow-lg z-50`}

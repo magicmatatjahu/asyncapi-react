@@ -39,10 +39,8 @@ export class ConverterService {
     (window as any).Editor.getModel().setValue(content as string);
   }
 
-  static importFromURL() {
-    const url = prompt('Enter the URL to import from:');
+  static importFromURL(url: string) {
     const language = url?.split('.').pop() as AllowedLanguages;
-
     if (url) {
       fetch(url)
         .then(res => res.text())
