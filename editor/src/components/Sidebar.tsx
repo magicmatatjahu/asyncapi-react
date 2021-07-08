@@ -90,6 +90,8 @@ export const Sidebar: React.FunctionComponent<SidebarProps> = ({}) => {
           </svg>
         </button>
       }
+      title={'lol'}
+      body={<div></div>}
     />
   );
 
