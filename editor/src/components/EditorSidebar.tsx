@@ -10,6 +10,7 @@ interface EditorSidebarProps {}
 
 export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) => {
   const importUrlModalRef = useRef();
+  const base64ModalRef = useRef();
 
   const editorState = state.useEditorState();
   const parserState = state.useParserState();
@@ -19,11 +20,18 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
     parserState.parsedSpec.get() && parserState.parsedSpec.get().version();
   const hasParserErrors = parserState.errors.get().length > 0;
 
-  const onImportFormSubmit = e => {
+  const onImportFormSubmit = (e: any) => {
     e.preventDefault();
     const url = e.target[0].value;
     ConverterService.importFromURL(url);
     (importUrlModalRef.current as any)?.closeModal();
+  };
+
+  const onImportBase64 = (e: any) => {
+    e.preventDefault();
+    const value = e.target[0].value;
+    ConverterService.importBase64(value);
+    (base64ModalRef.current as any)?.closeModal();
   };
 
   const importFromUrl = (
@@ -34,7 +42,6 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
           type="button"
           className="px-4 py-1 w-full text-left text-sm rounded-md focus:outline-none transition ease-in-out duration-150"
           title="Import AsyncAPI document"
-          // onClick={ConverterService.importFromURL}
         >
           Import from URL
         </button>
@@ -52,10 +59,54 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
                 type="url"
                 required
                 autoFocus
-                // onKeyUp={e => (e.keyCode === 27 && setImporting(false)) }
-                // onInput={onImportInput}
                 className="block flex-1 px-4 py-1 rounded-md border-gray-900 text-sm leading-5 text-gray-700 bg-white hover:text-gray-900 focus:outline-none focus:text-gray-900 w-96"
                 placeholder="Type the URL of the AsyncAPI document to import..."
+              />
+            </div>
+            <div className="flex items-center justify-end p-2 px-4 border-t border-solid border-blueGray-200 rounded-b">
+              <span className="block rounded-md shadow-sm ml-3">
+                <button
+                  type="submit"
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-pink-500 hover:bg-pink-600 focus:outline-none transition ease-in-out duration-150"
+                >
+                  Import
+                  <FaFileImport className="ml-2" />
+                </button>
+              </span>
+            </div>
+          </form>
+        </div>
+      }
+    />
+  );
+
+  const importBase64 = (
+    <Modal
+      ref={base64ModalRef}
+      opener={
+        <button
+          type="button"
+          className="px-4 py-1 w-full text-left text-sm rounded-md focus:outline-none transition ease-in-out duration-150"
+          title="Import AsyncAPI document"
+        >
+          Import Base64
+        </button>
+      }
+      title={
+        <h4 className="text-gray-700 text-lg font-semibold">
+          Import specification from Base64
+        </h4>
+      }
+      body={
+        <div>
+          <form className="flex flex-col" onSubmit={onImportBase64}>
+            <div className="p-4">
+              <textarea
+                required
+                autoFocus
+                rows={10}
+                className="block flex-1 px-4 py-1 rounded-md border-gray-900 text-sm leading-5 text-gray-700 bg-white hover:text-gray-900 focus:outline-none focus:text-gray-900 w-96"
+                placeholder="Paste the base64..."
               />
             </div>
             <div className="flex items-center justify-end p-2 px-4 border-t border-solid border-blueGray-200 rounded-b">
@@ -106,6 +157,7 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
               Import File
             </label>
           </li>
+          <li className="hover:bg-gray-900">{importBase64}</li>
         </div>
         <div className="border-b border-gray-700">
           <li className="hover:bg-gray-900">

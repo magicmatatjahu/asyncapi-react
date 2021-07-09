@@ -18,11 +18,14 @@ export class ConverterService {
     }
   }
 
-  static updateEditorContent(
-    content: string,
-    language: AllowedLanguages = 'yaml',
-  ) {
-    if (!content || !language) {
+  static updateEditorContent(content: string, language?: AllowedLanguages) {
+    if (!content) {
+      return;
+    }
+    if (!language) {
+      language = ConverterService.retrieveLangauge(content);
+    }
+    if (!language) {
       return;
     }
 
@@ -68,6 +71,15 @@ export class ConverterService {
       ConverterService.updateEditorContent(content as string, language);
     };
     fileReader.readAsText(file, 'UTF-8');
+  }
+
+  static importBase64(value: string) {
+    try {
+      const decoded = decodeURIComponent(escape(window.atob(value)));
+      ConverterService.updateEditorContent(decoded);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   static saveAsJson() {
