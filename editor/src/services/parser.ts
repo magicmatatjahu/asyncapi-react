@@ -1,4 +1,5 @@
 import { parse } from '@asyncapi/parser';
+import YAML from 'js-yaml';
 
 import state from '../state';
 
@@ -73,5 +74,29 @@ export class ParserService {
       err &&
       err.type === 'https://github.com/asyncapi/parser-js/dereference-error'
     );
+  }
+
+  static getAllRefs(): string[] {
+    let jsonSpec: any;
+    try {
+      const editorValue = state.editor.editorValue.get();
+
+      // JSON or YAML String -> JS object
+      jsonSpec = YAML.load(editorValue);
+    } catch (e) {
+      console.error(e);
+    }
+
+    if (!jsonSpec) {
+      return [];
+    }
+
+    const suggestions: string[] = [];
+    if (jsonSpec.components) {
+      Object.keys(jsonSpec.components.schemas || {}).map(schemaName => {
+        suggestions.push(`#/components/schemas/${schemaName}`);
+      });
+    }
+    return suggestions;
   }
 }

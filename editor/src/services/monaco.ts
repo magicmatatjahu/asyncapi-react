@@ -1,7 +1,9 @@
 import { loader } from '@monaco-editor/react';
+import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { schema } from './asyncapi-schema';
 import state from '../state';
+import { ParserService } from './parser';
 
 export class MonacoService {
   private static Monaco: any = null;
@@ -55,12 +57,87 @@ export class MonacoService {
           };
 
           const json = monacoInstance.languages.json;
-          const yaml = (monacoInstance.languages as any).yaml;
           json && json.jsonDefaults.setDiagnosticsOptions(options);
+          monacoInstance.languages.registerCompletionItemProvider(
+            'json',
+            MonacoService.getRefsCompletionProvider('json'),
+          );
+
+          const yaml = (monacoInstance.languages as any).yaml;
           yaml && yaml.yamlDefaults.setDiagnosticsOptions(options);
+          monacoInstance.languages.registerCompletionItemProvider(
+            'yaml',
+            MonacoService.getRefsCompletionProvider('yaml'),
+          );
+
           state.editor.monaco.set(() => monacoInstance);
         });
       })
       .catch(console.error);
+  }
+
+  static getRefsCompletionProvider(
+    lang: 'yaml' | 'json',
+  ): monacoAPI.languages.CompletionItemProvider {
+    return {
+      provideCompletionItems: function(model, position) {
+        // get editor content before the pointer
+        const textUntilPosition = model.getValueInRange({
+          startLineNumber: position.lineNumber,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column,
+        });
+        if (typeof textUntilPosition !== 'string') {
+          return { suggestions: [] };
+        }
+
+        const trimedPossiblePointer = textUntilPosition
+          .trimEnd()
+          .endsWith(lang === 'yaml' ? '$ref:' : '"$ref":');
+        if (!trimedPossiblePointer) {
+          return { suggestions: [] };
+        }
+
+        console.log(ParserService.getAllRefs());
+
+        // get content info - are we inside of the area where we don't want suggestions,
+        // what is the content without those areas
+        // let info = getAreaInfo(textUntilPosition); // isCompletionAvailable, clearedText
+        // // if we don't want any suggestions, return empty array
+        // if (!info.isCompletionAvailable) {
+        //     return [];
+        // }
+        // // if we want suggestions, inside of which tag are we?
+        // var lastTag = getLastOpenedTag(info.clearedText);
+        // // parse the content (not cleared text) into an xml document
+        // var xmlDoc = stringToXml(textUntilPosition);
+        // // get opened tags to see what tag we should look for in the XSD schema
+        // var openedTags;
+        // // get the elements/attributes that are already mentioned in the element we're in
+        // var usedItems;
+        // // find the last opened tag in the schema to see what elements/attributes it can have
+        // var currentItem;
+
+        // return available elements/attributes if the tag exists in the schema or an empty
+        // array if it doesn't
+
+        const suggestions = ParserService.getAllRefs().map(key => ({
+          label: lang === 'yaml' ? `'${key}'` : `"${key}"`,
+          kind: monacoAPI.languages.CompletionItemKind.Property,
+          insertText: lang === 'yaml' ? `'${key}'` : `"${key}"`,
+          range: {
+            startLineNumber: position.lineNumber,
+            startColumn: position.column,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column,
+          },
+        }));
+
+        return {
+          suggestions,
+        };
+      },
+    };
   }
 }
