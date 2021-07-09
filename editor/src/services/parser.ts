@@ -1,4 +1,5 @@
 import { parse } from '@asyncapi/parser';
+import { error } from 'console';
 import YAML from 'js-yaml';
 
 import state from '../state';
@@ -17,16 +18,21 @@ export class ParserService {
           ParserService.isValidationError(e) ||
           ParserService.isUnsupportedVersionError(e)
         ) {
-          errors = e.validationErrors;
+          errors.push(...e.validationErrors);
         }
         if (ParserService.isYamlError(e) || ParserService.isJsonError(e)) {
-          errors = [e];
+          errors.push(e);
         }
         if (ParserService.isDereferenceError(e)) {
-          errors = e.refs.map((ref: any) => ({
-            title: e.title,
-            location: { ...ref },
-          }));
+          errors.push(
+            ...e.refs.map((ref: any) => ({
+              title: e.title,
+              location: { ...ref },
+            })),
+          );
+        }
+        if (errors.length === 0) {
+          errors.push(e);
         }
         parserState.parsedSpec.set(null);
         parserState.errors.set(errors);

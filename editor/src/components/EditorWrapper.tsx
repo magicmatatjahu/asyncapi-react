@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import MonacoEditor, {
   EditorProps as MonacoEditorProps,
 } from '@monaco-editor/react';
+import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { debounce } from '../helpers';
 import { ConverterService, MonacoService, ParserService } from '../services';
@@ -18,6 +19,18 @@ export const EditorWrapper: React.FunctionComponent<EditorWrapperProps> = ({
     // editorState.editor.set(editor);
     (window as any).Editor = editor;
     ParserService.parseSpec(editorState.editorValue.value);
+    editor.addCommand(
+      monacoAPI.KeyMod.CtrlCmd | monacoAPI.KeyCode.KEY_S,
+      function() {
+        console.log('SAVE pressed!');
+      },
+    );
+    editor.addCommand(
+      monacoAPI.KeyMod.CtrlCmd | monacoAPI.KeyCode.KEY_S,
+      function() {
+        console.log('LOL pressed!');
+      },
+    );
     // workaround for autocompletion
     // editor.onKeyUp((e: any) => {
     //   const position = editor.getPosition();
@@ -29,6 +42,7 @@ export const EditorWrapper: React.FunctionComponent<EditorWrapperProps> = ({
   }
 
   const onChange = debounce((v: string) => {
+    console.log(v);
     editorState.language.set(ConverterService.retrieveLangauge(v));
     editorState.editorValue.set(v);
     ParserService.parseSpec(v);
@@ -42,10 +56,10 @@ export const EditorWrapper: React.FunctionComponent<EditorWrapperProps> = ({
     <MonacoEditor
       language={editorState.language.get()}
       theme="asyncapi-theme"
-      value={editorState.editorValue.get()}
-      // path={file.name}
-      // defaultLanguage={file.language}
-      // defaultValue={file.value}
+      // value={editorState.editorValue.get()}
+      path={editorState.fileName.get()}
+      // defaultLanguage={editorState.language.get()}
+      defaultValue={editorState.editorValue.get()}
       // className={className}
       // beforeMount={handleEditorWillMount}
       onMount={handleEditorDidMount}
