@@ -2,9 +2,11 @@ import React, { useRef } from 'react';
 import { FaEllipsisH, FaFileImport } from 'react-icons/fa';
 
 import { Dropdown } from './Dropdown';
+import { EditorTabs } from './EditorTabs';
+import { Modal } from './Modal';
+
 import { ConverterService } from '../services';
 import state from '../state';
-import { Modal } from './Modal';
 
 interface EditorSidebarProps {}
 
@@ -89,7 +91,7 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
           className="px-4 py-1 w-full text-left text-sm rounded-md focus:outline-none transition ease-in-out duration-150"
           title="Import AsyncAPI document"
         >
-          Import Base64
+          Import from Base64
         </button>
       }
       title={
@@ -191,6 +193,23 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
             </button>
           </li>
         </div>
+        <div className="border-b border-gray-700">
+          <li className="hover:bg-gray-900">
+            <button
+              type="button"
+              className="px-4 py-1 w-full text-left text-sm rounded-md focus:outline-none transition ease-in-out duration-150"
+              title="Import AsyncAPI document"
+              // onClick={
+              //   language === 'yaml'
+              //     ? ConverterService.convertToJsonInEditor
+              //     : ConverterService.convertToYamlInEditor
+              // }
+              // disabled={hasParserErrors}
+            >
+              Share by Base64
+            </button>
+          </li>
+        </div>
         <div>
           <li className="hover:bg-gray-900">
             <button
@@ -225,15 +244,16 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
 
   return (
     <div
-      className="bg-gray-800 border-b border-gray-700 text-sm px-2"
+      className="bg-gray-800 border-b border-gray-700 text-sm"
       style={{ height: '30px', lineHeight: '30px' }}
     >
       <div
         className="flex flex-row items-center justify-between"
         style={{ height: '30px', lineHeight: '30px' }}
       >
+        {/* <EditorTabs /> */}
         <div />
-        <div style={{ height: '30px', lineHeight: '30px' }}>
+        <div>
           <ul className="flex">
             <li>{dropdown}</li>
           </ul>

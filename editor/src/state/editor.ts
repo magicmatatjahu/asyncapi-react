@@ -80,16 +80,18 @@ export interface EditorState {
   monaco: any;
   editor: any;
   height: string;
-  editorValue: string;
+  fileName: string;
   language: string;
+  editorValue: string;
 }
 
 export const editorState = createState<EditorState>({
   monaco: null,
   editor: null,
   height: 'calc(100% - 30px)',
-  editorValue: schema,
+  fileName: 'asyncapi',
   language: 'yaml',
+  editorValue: schema,
 });
 
 export function useEditorState() {
