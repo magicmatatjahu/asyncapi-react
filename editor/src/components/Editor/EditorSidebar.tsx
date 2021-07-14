@@ -3,7 +3,6 @@ import { FaEllipsisH, FaFileImport } from 'react-icons/fa';
 
 import { Modal } from '../Modal';
 import { Dropdown } from '../Dropdown';
-import { EditorTabs } from './EditorTabs';
 
 import { ConverterService } from '../../services';
 import state from '../../state';
@@ -248,11 +247,9 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
       style={{ height: '30px', lineHeight: '30px' }}
     >
       <div
-        className="flex flex-row items-center justify-between"
+        className="flex flex-row items-center justify-end"
         style={{ height: '30px', lineHeight: '30px' }}
       >
-        {/* <EditorTabs /> */}
-        <div />
         <div>
           <ul className="flex">
             <li>{dropdown}</li>

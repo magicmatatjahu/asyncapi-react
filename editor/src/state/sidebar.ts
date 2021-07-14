@@ -11,7 +11,7 @@ export interface SidebarState {
 
 export const sidebarState = createState<SidebarState>({
   panels: {
-    filesExplorer: true,
+    filesExplorer: false,
     navigation: true,
     editor: true,
     template: true,
