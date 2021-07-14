@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
 import { FaEllipsisH, FaFileImport } from 'react-icons/fa';
 
-import { Dropdown } from './Dropdown';
+import { Modal } from '../Modal';
+import { Dropdown } from '../Dropdown';
 import { EditorTabs } from './EditorTabs';
-import { Modal } from './Modal';
 
-import { ConverterService } from '../services';
-import state from '../state';
+import { ConverterService } from '../../services';
+import state from '../../state';
 
 interface EditorSidebarProps {}
 
@@ -251,8 +251,8 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
         className="flex flex-row items-center justify-between"
         style={{ height: '30px', lineHeight: '30px' }}
       >
-        <EditorTabs />
-        {/* <div /> */}
+        {/* <EditorTabs /> */}
+        <div />
         <div>
           <ul className="flex">
             <li>{dropdown}</li>

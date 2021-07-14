@@ -1,12 +1,11 @@
 import React from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex';
 
-import { Editor } from './Editor';
+import { Editor } from './Editor/Editor';
 import { FilesExplorer } from './FilesExplorer';
 import { Navigation } from './Navigation';
 import { Template } from './Template';
 
-import { debounce } from '../helpers';
 import state from '../state';
 
 import 'react-reflex/styles.css';

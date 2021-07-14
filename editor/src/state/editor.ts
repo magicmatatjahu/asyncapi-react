@@ -80,6 +80,11 @@ export interface EditorState {
   monaco: any;
   editor: any;
   height: string;
+  files: Array<{
+    path: string;
+    language: string;
+    fileValue: string;
+  }>;
   fileName: string;
   language: string;
   editorValue: string;
@@ -89,6 +94,23 @@ export const editorState = createState<EditorState>({
   monaco: null,
   editor: null,
   height: 'calc(100% - 36px)',
+  files: [
+    {
+      path: 'asyncapi',
+      language: 'yaml',
+      fileValue: schema,
+    },
+    {
+      path: 'dupa',
+      language: 'json',
+      fileValue: 'dsd',
+    },
+    {
+      path: 'cycki',
+      language: 'json',
+      fileValue: 'isdoisdoih',
+    },
+  ],
   fileName: 'asyncapi',
   language: 'yaml',
   editorValue: schema,
