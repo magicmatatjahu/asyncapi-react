@@ -3,7 +3,8 @@ import SplitPane from 'react-split-pane';
 
 import { EditorSidebar } from './EditorSidebar';
 import { EditorWrapper } from './EditorWrapper';
-import { Terminal } from './Terminal';
+// import { Terminal } from './Terminal';
+import { Terminal } from './Terminal/Terminal';
 
 import state from '../state';
 
@@ -18,7 +19,7 @@ export const Editor: React.FunctionComponent<EditorProps> = props => {
       <SplitPane
         split="horizontal"
         minSize={29}
-        maxSize={-30}
+        maxSize={-36}
         size={editorHeight}
         defaultSize={editorHeight}
       >
@@ -26,9 +27,7 @@ export const Editor: React.FunctionComponent<EditorProps> = props => {
           <EditorSidebar />
           <EditorWrapper />
         </div>
-        <div className="bg-gray-900 border-t border-gray-700 flex-grow relative h-full overflow-hidden">
-          <Terminal />
-        </div>
+        <Terminal />
       </SplitPane>
     </div>
   );

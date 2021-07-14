@@ -1,6 +1,5 @@
 import React from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex';
-import SplitPane from 'react-split-pane';
 
 import { Editor } from './Editor';
 import { FilesExplorer } from './FilesExplorer';
