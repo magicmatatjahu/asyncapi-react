@@ -65,11 +65,11 @@ export const EditorTabs: React.FunctionComponent<EditorTabsProps> = ({
           } px-2 cursor-pointer`}
           onClick={() => setSctiveTab(tab.fileName)}
         >
-          <div className="group flex flex-row items-center">
+          <div className="flex flex-row items-center">
             <div>
               {tab.fileName}.{tab.language}
             </div>
-            <div className={`ml-2 invisible group-hover:visible`}>
+            <div className={`ml-2`}>
               <VscChromeClose
                 onClick={() =>
                   setTabs(previous =>
