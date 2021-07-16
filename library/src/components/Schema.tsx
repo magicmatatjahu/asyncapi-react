@@ -69,16 +69,26 @@ export const Schema: React.FunctionComponent<Props> = ({
 
   return (
     <SchemaContext.Provider value={{ reverse: !reverse }}>
-      <div>
-        <div className="flex py-2">
-          <div className="w-3/12 min-w-min mr-2">
-            {isExpandable && !isCircular ? (
-              <CollapseButton
-                onClick={() => setExpand(prev => !prev)}
-                chevronProps={{
-                  className: expand ? '-rotate-180' : '-rotate-90',
-                }}
-              >
+      <>
+        <tr className="py-2">
+          <td>
+            <div>
+              {isExpandable && !isCircular ? (
+                <CollapseButton
+                  onClick={() => setExpand(prev => !prev)}
+                  chevronProps={{
+                    className: expand ? '-rotate-180' : '-rotate-90',
+                  }}
+                >
+                  <span
+                    className={`break-words text-sm ${
+                      isProperty ? 'italic' : ''
+                    }`}
+                  >
+                    {schemaName}
+                  </span>
+                </CollapseButton>
+              ) : (
                 <span
                   className={`break-words text-sm ${
                     isProperty ? 'italic' : ''
@@ -86,46 +96,40 @@ export const Schema: React.FunctionComponent<Props> = ({
                 >
                   {schemaName}
                 </span>
-              </CollapseButton>
-            ) : (
-              <span
-                className={`break-words text-sm ${isProperty ? 'italic' : ''}`}
-              >
-                {schemaName}
-              </span>
-            )}
-            {isPatternProperty && (
-              <div className="text-gray-500 text-xs italic">
-                (pattern property)
-              </div>
-            )}
-            {required && <div className="text-red-600 text-xs">required</div>}
-            {dependentRequired && (
-              <>
-                <div className="text-gray-500 text-xs">
-                  required when defined:
+              )}
+              {isPatternProperty && (
+                <div className="text-gray-500 text-xs italic">
+                  (pattern property)
                 </div>
-                <div className="text-red-600 text-xs">
-                  {dependentRequired.join(', ')}
-                </div>
-              </>
-            )}
-            {schema.deprecated() && (
-              <div className="text-red-600 text-xs">deprecated</div>
-            )}
-            {schema.writeOnly() && (
-              <div className="text-gray-500 text-xs">write-only</div>
-            )}
-            {schema.readOnly() && (
-              <div className="text-gray-500 text-xs">read-only</div>
-            )}
-          </div>
-          {rawValue ? (
-            <div>
-              <div className="text-sm">{schema.const()}</div>
+              )}
+              {required && <div className="text-red-600 text-xs">required</div>}
+              {dependentRequired && (
+                <>
+                  <div className="text-gray-500 text-xs">
+                    required when defined:
+                  </div>
+                  <div className="text-red-600 text-xs">
+                    {dependentRequired.join(', ')}
+                  </div>
+                </>
+              )}
+              {schema.deprecated() && (
+                <div className="text-red-600 text-xs">deprecated</div>
+              )}
+              {schema.writeOnly() && (
+                <div className="text-gray-500 text-xs">write-only</div>
+              )}
+              {schema.readOnly() && (
+                <div className="text-gray-500 text-xs">read-only</div>
+              )}
             </div>
+          </td>
+          {rawValue ? (
+            <td>
+              <div className="text-sm">{schema.const()}</div>
+            </td>
           ) : (
-            <div>
+            <td>
               <div>
                 {renderType && (
                   <div className="capitalize text-sm text-teal-500 font-bold inline-block mr-2">
@@ -243,93 +247,109 @@ export const Schema: React.FunctionComponent<Props> = ({
                   </ul>
                 )}
               </div>
-            </div>
+            </td>
           )}
-        </div>
+        </tr>
 
         {isCircular || !isExpandable ? null : (
-          <div
-            className={`rounded p-4 py-2 bg-gray-100 border bg-gray-100 ${
-              reverse ? 'bg-gray-200' : ''
-            } ${expand ? 'block' : 'hidden'}`}
-          >
-            <SchemaProperties schema={schema} />
-            <SchemaItems schema={schema} />
+          <tr>
+            <td colSpan={2}>
+              <div
+                className={`rounded p-4 py-2 bg-gray-100 border bg-gray-100 ${
+                  reverse ? 'bg-gray-200' : ''
+                } ${expand ? '' : 'hidden'}`}
+              >
+                <table>
+                  <tbody>
+                    <SchemaProperties schema={schema} />
+                    <SchemaItems schema={schema} />
 
-            {schema.oneOf() &&
-              schema
-                .oneOf()
-                .map((s, idx) => (
-                  <Schema
-                    key={idx}
-                    schema={s}
-                    schemaName={idx === 0 ? 'Adheres to:' : 'Or to:'}
-                  />
-                ))}
-            {schema.anyOf() &&
-              schema
-                .anyOf()
-                .map((s, idx) => (
-                  <Schema
-                    key={idx}
-                    schema={s}
-                    schemaName={idx === 0 ? 'Can adhere to:' : 'Or to:'}
-                  />
-                ))}
-            {schema.allOf() &&
-              schema
-                .allOf()
-                .map((s, idx) => (
-                  <Schema
-                    key={idx}
-                    schema={s}
-                    schemaName={idx === 0 ? 'Consists of:' : 'And with:'}
-                  />
-                ))}
-            {schema.not() && (
-              <Schema schema={schema.not()} schemaName="Cannot adhere to:" />
-            )}
+                    {schema.oneOf() &&
+                      schema
+                        .oneOf()
+                        .map((s, idx) => (
+                          <Schema
+                            key={idx}
+                            schema={s}
+                            schemaName={idx === 0 ? 'Adheres to:' : 'Or to:'}
+                          />
+                        ))}
+                    {schema.anyOf() &&
+                      schema
+                        .anyOf()
+                        .map((s, idx) => (
+                          <Schema
+                            key={idx}
+                            schema={s}
+                            schemaName={idx === 0 ? 'Can adhere to:' : 'Or to:'}
+                          />
+                        ))}
+                    {schema.allOf() &&
+                      schema
+                        .allOf()
+                        .map((s, idx) => (
+                          <Schema
+                            key={idx}
+                            schema={s}
+                            schemaName={
+                              idx === 0 ? 'Consists of:' : 'And with:'
+                            }
+                          />
+                        ))}
+                    {schema.not() && (
+                      <Schema
+                        schema={schema.not()}
+                        schemaName="Cannot adhere to:"
+                      />
+                    )}
 
-            {schema.propertyNames() && (
-              <Schema
-                schema={schema.propertyNames()}
-                schemaName="Property names must adhere to:"
-              />
-            )}
-            {schema.contains() && (
-              <Schema
-                schema={schema.contains()}
-                schemaName="Array must contain at least one of:"
-              />
-            )}
+                    {schema.propertyNames() && (
+                      <Schema
+                        schema={schema.propertyNames()}
+                        schemaName="Property names must adhere to:"
+                      />
+                    )}
+                    {schema.contains() && (
+                      <Schema
+                        schema={schema.contains()}
+                        schemaName="Array must contain at least one of:"
+                      />
+                    )}
 
-            {schema.if() && (
-              <Schema schema={schema.if()} schemaName="If schema adheres to:" />
-            )}
-            {schema.then() && (
-              <Schema
-                schema={schema.then()}
-                schemaName="Then must adhere to:"
-              />
-            )}
-            {schema.else() && (
-              <Schema schema={schema.else()} schemaName="Otherwise:" />
-            )}
+                    {schema.if() && (
+                      <Schema
+                        schema={schema.if()}
+                        schemaName="If schema adheres to:"
+                      />
+                    )}
+                    {schema.then() && (
+                      <Schema
+                        schema={schema.then()}
+                        schemaName="Then must adhere to:"
+                      />
+                    )}
+                    {schema.else() && (
+                      <Schema schema={schema.else()} schemaName="Otherwise:" />
+                    )}
 
-            {dependentSchemas && (
-              <Schema
-                schema={dependentSchemas}
-                schemaName="Dependent schemas:"
-              />
-            )}
+                    {dependentSchemas && (
+                      <Schema
+                        schema={dependentSchemas}
+                        schemaName="Dependent schemas:"
+                      />
+                    )}
 
-            <Extensions item={schema} />
+                    <Extensions item={schema} />
 
-            <AdditionalProperties schema={schema} />
-            <AdditionalItems schema={schema} />
-          </div>
+                    <AdditionalProperties schema={schema} />
+                    <AdditionalItems schema={schema} />
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
         )}
-      </div>
+      </>
     </SchemaContext.Provider>
   );
 };
