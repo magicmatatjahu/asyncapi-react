@@ -8,13 +8,14 @@ import state from '../state';
 type AllowedLanguages = 'json' | 'yaml' | 'yml';
 
 export class ConverterService {
-  static convertSpec() {
+  static async convertSpec() {
     try {
       const rawSpec = state.editor.editorValue.get();
-      const convertedSpec = convert(rawSpec, '2.0.0');
+      const convertedSpec = convert(rawSpec, '2.1.0');
       (window as any).Editor.getModel().setValue(convertedSpec as string);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }
 
@@ -42,7 +43,7 @@ export class ConverterService {
     (window as any).Editor.getModel().setValue(content as string);
   }
 
-  static importFromURL(url: string) {
+  static async importFromURL(url: string) {
     const language = url?.split('.').pop() as AllowedLanguages;
     if (url) {
       fetch(url)
@@ -50,11 +51,14 @@ export class ConverterService {
         .then(text => {
           ConverterService.updateEditorContent(text, language);
         })
-        .catch(console.error);
+        .catch(err => {
+          console.error(err);
+          throw err;
+        });
     }
   }
 
-  static importFile(e: React.ChangeEvent<HTMLInputElement>) {
+  static async importFile(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target?.files;
     if (files?.length !== 1) {
       return;
@@ -73,58 +77,68 @@ export class ConverterService {
     fileReader.readAsText(file, 'UTF-8');
   }
 
-  static importBase64(value: string) {
+  static async importBase64(value: string) {
     try {
       const decoded = decodeURIComponent(escape(window.atob(value)));
       ConverterService.updateEditorContent(decoded);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }
 
-  static saveAsJson() {
+  static exportToBase64(value: string): string | never {
+    try {
+      return decodeURIComponent(escape(window.btoa(value)));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  static async saveAsJson() {
     try {
       const jsonContent = ConverterService.convertToJson();
       const fileName = ConverterService.getFileName();
       ConverterService.downloadFile(jsonContent, `${fileName}.json`);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }
 
-  static saveAsYaml() {
+  static async saveAsYaml() {
     try {
       const yamlContent = ConverterService.convertToYaml();
-
       const fileName = ConverterService.getFileName();
       ConverterService.downloadFile(yamlContent, `${fileName}.yaml`);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }
 
-  static convertToYamlInEditor() {
+  static async convertToYamlInEditor() {
     try {
       const yamlContent = ConverterService.convertToYaml();
       ConverterService.updateEditorContent(yamlContent, 'yaml');
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }
 
   static convertToYaml() {
     try {
       const editorValue = state.editor.editorValue.get();
-
       // Editor content -> JS object -> YAML string
       const jsonContent = YAML.load(editorValue);
       return YAML.dump(jsonContent);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
     }
   }
 
-  static convertToJsonInEditor() {
+  static async convertToJsonInEditor() {
     try {
       const jsonContent = ConverterService.convertToJson();
       ConverterService.updateEditorContent(jsonContent, 'json');

@@ -2,7 +2,6 @@ import React from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex';
 
 import { Editor } from './Editor/Editor';
-import { FilesExplorer } from './FilesExplorer';
 import { Navigation } from './Navigation';
 import { Template } from './Template';
 
@@ -15,7 +14,6 @@ interface ContentProps {}
 export const Content: React.FunctionComponent<ContentProps> = ({}) => {
   const sidebarState = state.useSidebarState();
 
-  const filesExplorerEnabled = sidebarState.panels.filesExplorer.get();
   const navigationEnabled = sidebarState.panels.navigation.get();
   const editorEnabled = sidebarState.panels.editor.get();
   const templateEnabled = sidebarState.panels.template.get();
@@ -69,22 +67,6 @@ export const Content: React.FunctionComponent<ContentProps> = ({}) => {
 
   return (
     <ReflexContainer orientation="vertical">
-      {filesExplorerEnabled && (
-        <ReflexElement
-          size={240}
-          onResize={props => {
-            const offsetWidth = (props.domElement as any)?.offsetWidth;
-            if (offsetWidth < 75) {
-              sidebarState.panels.filesExplorer.set(false);
-            }
-          }}
-        >
-          <FilesExplorer />
-        </ReflexElement>
-      )}
-
-      {filesExplorerEnabled && <ReflexSplitter />}
-
       {navigationEnabled && (
         <ReflexElement
           size={240}

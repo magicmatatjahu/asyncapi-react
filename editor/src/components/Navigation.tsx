@@ -158,7 +158,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = () => {
                 if (channel.hasPublish()) {
                   channels.push(
                     <li
-                      key={channelName}
+                      key={`${channelName}-publish`}
                       className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
                         hash === `operation-publish-${channelName}`
                           ? 'bg-gray-900'
@@ -188,7 +188,7 @@ export const Navigation: React.FunctionComponent<NavigationProps> = () => {
                 if (channel.hasSubscribe()) {
                   channels.push(
                     <li
-                      key={channelName}
+                      key={`${channelName}-subscribe`}
                       className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
                         hash === `operation-subscribe-${channelName}`
                           ? 'bg-gray-900'

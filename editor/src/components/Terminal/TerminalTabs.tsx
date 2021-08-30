@@ -56,6 +56,7 @@ export const TerminalTabs: React.FunctionComponent<TerminalTabsProps> = ({
         <ul className="flex flex-row">
           {tabs.map(tab => (
             <li
+              key={tab.name}
               className="px-2 cursor-pointer"
               onClick={() => setSctiveTab(tab.name)}
             >
@@ -79,7 +80,10 @@ export const TerminalTabs: React.FunctionComponent<TerminalTabsProps> = ({
       >
         <ul>
           {tabs.map(tab => (
-            <li className={`${activeTab === tab.name ? 'block' : 'hidden'}`}>
+            <li
+              key={tab.name}
+              className={`${activeTab === tab.name ? 'block' : 'hidden'}`}
+            >
               {tab.content}
             </li>
           ))}

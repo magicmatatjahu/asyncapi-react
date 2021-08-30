@@ -34,8 +34,8 @@ export const ProblemsTabContent: React.FunctionComponent<ProblemsTabProps> = () 
               </tr>
             </thead>
             <tbody>
-              {errors.map((err: any) => (
-                <tr key={err.title} className="border-t border-gray-700">
+              {errors.map((err: any, id) => (
+                <tr key={err.title || id} className="border-t border-gray-700">
                   <td
                     className="p-2 cursor-pointer text-center"
                     onClick={() => {

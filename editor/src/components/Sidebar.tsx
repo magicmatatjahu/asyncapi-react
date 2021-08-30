@@ -24,12 +24,6 @@ export const Sidebar: React.FunctionComponent<SidebarProps> = ({}) => {
   const sidebarState = state.useSidebarState();
 
   const navigation: NavItem[] = [
-    // filesExplorer
-    {
-      name: 'filesExplorer',
-      state: sidebarState.panels.filesExplorer,
-      icon: <VscFiles className="w-5 h-5" />,
-    },
     // navigation
     {
       name: 'navigation',

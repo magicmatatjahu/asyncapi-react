@@ -1,14 +1,8 @@
 import React from 'react';
-import AsyncApiComponent, { AsyncApiProps } from '@asyncapi/react-component';
+import { AsyncApiProps } from '@asyncapi/react-component';
+import { Toaster } from 'react-hot-toast';
 
-import {
-  Editor,
-  EditorProps,
-  Content,
-  Sidebar,
-  Toolbar,
-  Modal,
-} from './components';
+import { EditorProps, Content, Sidebar, Toolbar } from './components';
 
 export interface AsyncApiEditorProps {
   componentProps?: AsyncApiProps;
@@ -29,6 +23,7 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
         <Sidebar />
         <Content />
       </div>
+      <Toaster position="bottom-center" reverseOrder={false} />
     </div>
   );
 };
