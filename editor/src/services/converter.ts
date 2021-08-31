@@ -1,5 +1,7 @@
 // @ts-ignore
 import { convert } from '@asyncapi/converter';
+// @ts-ignore
+import specs from '@asyncapi/specs';
 import fileDownload from 'js-file-download';
 import YAML from 'js-yaml';
 
@@ -8,11 +10,20 @@ import state from '../state';
 type AllowedLanguages = 'json' | 'yaml' | 'yml';
 
 export class ConverterService {
-  static async convertSpec() {
+  static getLastVersion(): string {
+    return Object.keys(specs).pop();
+  }
+
+  static async convertSpec(version: string = this.getLastVersion()) {
     try {
+      const initLanguage = state.editor.language.get();
       const rawSpec = state.editor.editorValue.get();
-      const convertedSpec = convert(rawSpec, '2.1.0');
-      (window as any).Editor.getModel().setValue(convertedSpec as string);
+      let convertedSpec = convert(rawSpec, version);
+      convertedSpec =
+        initLanguage === 'json'
+          ? this.convertToJson(convertedSpec)
+          : convertedSpec;
+      this.updateEditorContent(convertedSpec);
     } catch (err) {
       console.error(err);
       throw err;
@@ -40,15 +51,15 @@ export class ConverterService {
         state.editor.language.set('json');
       }
     }
-    (window as any).Editor.getModel().setValue(content as string);
+    state.editor.processedValue.set(content as string);
   }
 
   static async importFromURL(url: string) {
-    const language = url?.split('.').pop() as AllowedLanguages;
     if (url) {
       fetch(url)
         .then(res => res.text())
         .then(text => {
+          const language = url?.split('.').pop() as AllowedLanguages;
           ConverterService.updateEditorContent(text, language);
         })
         .catch(err => {
@@ -127,9 +138,9 @@ export class ConverterService {
     }
   }
 
-  static convertToYaml() {
+  static convertToYaml(content?: string) {
     try {
-      const editorValue = state.editor.editorValue.get();
+      const editorValue = content || state.editor.editorValue.get();
       // Editor content -> JS object -> YAML string
       const jsonContent = YAML.load(editorValue);
       return YAML.dump(jsonContent);
@@ -147,9 +158,9 @@ export class ConverterService {
     }
   }
 
-  static convertToJson() {
+  static convertToJson(content?: string) {
     try {
-      const editorValue = state.editor.editorValue.get();
+      const editorValue = content || state.editor.editorValue.get();
 
       // JSON or YAML String -> JS object
       const jsonContent = YAML.load(editorValue);

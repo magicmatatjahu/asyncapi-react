@@ -1,4 +1,5 @@
 export * from './BaseModal';
+export * from './ConverterModal';
 export * from './ImportURLModal';
 export * from './ImportBase64Modal';
 export * from './ShareBase64Modal';

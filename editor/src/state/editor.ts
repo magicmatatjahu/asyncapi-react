@@ -79,19 +79,23 @@ components:
 export interface EditorState {
   monaco: any;
   editor: any;
+  loaded: boolean;
   height: string;
   fileName: string;
   language: string;
   editorValue: string;
+  processedValue: string;
 }
 
 export const editorState = createState<EditorState>({
   monaco: null,
   editor: null,
+  loaded: false,
   height: 'calc(100% - 36px)',
   fileName: 'asyncapi',
   language: 'yaml',
   editorValue: schema,
+  processedValue: '',
 });
 
 export function useEditorState() {

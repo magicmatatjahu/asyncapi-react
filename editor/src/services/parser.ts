@@ -1,5 +1,4 @@
 import { parse } from '@asyncapi/parser';
-import { error } from 'console';
 import YAML from 'js-yaml';
 
 import state from '../state';

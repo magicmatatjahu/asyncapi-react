@@ -45,12 +45,13 @@ export const ImportURLModal: React.FunctionComponent = () => {
     >
       <div className="flex content-center justify-center">
         <label
-          htmlFor="source"
+          htmlFor="url"
           className="flex justify-right items-center w-1/2 content-center  text-sm font-medium text-gray-700 hidden"
         >
           Document URL
         </label>
         <textarea
+          name="url"
           placeholder="Paste URL here"
           className="shadow-sm focus:ring-pink-500 focus:border-pink-500 w-1/2 block w-full sm:text-sm border-gray-300 rounded-md"
           onChange={e => setUrl(e.target.value)}

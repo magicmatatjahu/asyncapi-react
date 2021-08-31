@@ -25,6 +25,7 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
         console.log('SAVE pressed!');
       },
     );
+
     // workaround for autocompletion
     // editor.onKeyUp((e: any) => {
     //   const position = editor.getPosition();
@@ -33,14 +34,26 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
     //     editor.trigger('', 'editor.action.triggerSuggest', '');
     //   }
     // });
+
+    editorState.loaded.set(true);
   }
 
   const onChange = debounce((v: string) => {
     editorState.language.set(ConverterService.retrieveLangauge(v));
     editorState.editorValue.set(v);
-
     ParserService.parseSpec(v);
   }, 250);
+
+  useEffect(() => {
+    const editor = (window as any).Editor;
+    if (!editor) {
+      return;
+    }
+
+    const processedValue = editorState.processedValue.get();
+    editorState.editorValue.set(processedValue);
+    editor.getModel().setValue(processedValue);
+  }, [editorState.processedValue.get()]);
 
   useEffect(() => {
     MonacoService.loadMonaco();

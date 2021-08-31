@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AsyncApiProps } from '@asyncapi/react-component';
 import { Toaster } from 'react-hot-toast';
 
-import { EditorProps, Content, Sidebar, Toolbar } from './components';
+import { Content, Sidebar, Toolbar } from './components';
+import { EditorProps } from './components/Editor';
+import { LoadingModal } from './components/Modals/LoadingModal';
+import { WindowService } from './services';
 
 export interface AsyncApiEditorProps {
   componentProps?: AsyncApiProps;
@@ -16,6 +19,10 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
   },
   monacoEditor = {},
 }) => {
+  useEffect(() => {
+    WindowService.onInit();
+  }, []);
+
   return (
     <div className="flex flex-col h-full w-full h-screen">
       <Toolbar />
@@ -24,6 +31,7 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
         <Content />
       </div>
       <Toaster position="bottom-center" reverseOrder={false} />
+      <LoadingModal title="Loading..." />
     </div>
   );
 };

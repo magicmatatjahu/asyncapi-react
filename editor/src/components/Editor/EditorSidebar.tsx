@@ -2,12 +2,16 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { FaEllipsisH } from 'react-icons/fa';
 
-import { ImportURLModal, ImportBase64Modal, ShareBase64Modal } from '../Modals';
+import {
+  ImportURLModal,
+  ImportBase64Modal,
+  ShareBase64Modal,
+  ConverterModal,
+} from '../Modals';
 import { Dropdown } from '../Dropdown';
 
 import { ConverterService } from '../../services';
 import state from '../../state';
-import { CommonHelpers } from '@asyncapi/react-component/lib/types/helpers';
 
 interface EditorSidebarProps {}
 
@@ -16,8 +20,6 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
   const parserState = state.useParserState();
 
   const language = editorState.language.get();
-  const isLatestVersion =
-    parserState.parsedSpec.get() && parserState.parsedSpec.get().version();
   const hasParserErrors = parserState.errors.get().length > 0;
 
   const dropdown = (
@@ -178,33 +180,7 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
             </button>
           </li>
           <li className="hover:bg-gray-900">
-            <button
-              type="button"
-              className="px-4 py-1 w-full text-left text-sm rounded-md focus:outline-none transition ease-in-out duration-150 disabled:opacity-50"
-              title="Convert to latest version"
-              onClick={() => {
-                toast.promise(ConverterService.convertSpec(), {
-                  loading: 'Saving...',
-                  success: (
-                    <div>
-                      <span className="block text-bold">
-                        Document succesfully converted!
-                      </span>
-                    </div>
-                  ),
-                  error: (
-                    <div>
-                      <span className="block text-bold text-red-400">
-                        Failed to convert document.
-                      </span>
-                    </div>
-                  ),
-                });
-              }}
-              disabled={isLatestVersion === '2.1.0'}
-            >
-              Convert to latest version
-            </button>
+            <ConverterModal />
           </li>
         </div>
       </ul>

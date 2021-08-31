@@ -1,7 +1,8 @@
 import { loader } from '@monaco-editor/react';
 import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
 
-import { schema } from './asyncapi-schema';
+// @ts-ignore
+import specs from '@asyncapi/specs';
 import state from '../state';
 import { ParserService } from './parser';
 
@@ -38,6 +39,11 @@ export class MonacoService {
           },
           rules: [{ token: '', background: '#252f3f' }],
         });
+
+        let allowedVersion = Object.keys(specs);
+        allowedVersion.splice(0, 5);
+        const schemas = allowedVersion.map(v => specs[v]);
+
         // @ts-ignore
         import('monaco-yaml/lib/esm/monaco.contribution').then(() => {
           const options = {
@@ -50,7 +56,7 @@ export class MonacoService {
                 fileMatch: ['*'], // associate with our model
                 schema: {
                   id: 'http://myserver/foo-schema.json',
-                  ...schema,
+                  oneOf: schemas,
                 },
               },
             ],

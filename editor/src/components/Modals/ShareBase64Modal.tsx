@@ -53,15 +53,17 @@ export const ShareBase64Modal: React.FunctionComponent = () => {
     >
       <div className="flex content-center justify-center">
         <label
-          htmlFor="source"
+          htmlFor="base64-source"
           className="flex justify-right items-center w-1/2 content-center  text-sm font-medium text-gray-700 hidden"
         >
           Document
         </label>
         <textarea
+          name="base64-source"
           className="shadow-sm focus:ring-pink-500 focus:border-pink-500 w-1/2 block w-full sm:text-sm border-gray-300 rounded-md"
           rows={10}
           value={base64Document}
+          readOnly={true}
         />
       </div>
     </BaseModal>
