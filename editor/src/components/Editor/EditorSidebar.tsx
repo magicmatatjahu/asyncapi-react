@@ -3,10 +3,11 @@ import toast from 'react-hot-toast';
 import { FaEllipsisH } from 'react-icons/fa';
 
 import {
+  ConverterModal,
+  ExportToLinkModal,
   ImportURLModal,
   ImportBase64Modal,
   ShareBase64Modal,
-  ConverterModal,
 } from '../Modals';
 import { Dropdown } from '../Dropdown';
 
@@ -142,6 +143,9 @@ export const EditorSidebar: React.FunctionComponent<EditorSidebarProps> = ({}) =
         <div className="border-b border-gray-700">
           <li className="hover:bg-gray-900">
             <ShareBase64Modal />
+          </li>
+          <li className="hover:bg-gray-900">
+            <ExportToLinkModal />
           </li>
         </div>
         <div>

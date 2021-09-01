@@ -1,12 +1,15 @@
+import { AsyncAPIDocument } from '@asyncapi/parser';
+// @ts-ignore
+import specs from '@asyncapi/specs';
 import { loader } from '@monaco-editor/react';
 import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
 
-// @ts-ignore
-import specs from '@asyncapi/specs';
 import state from '../state';
 import { ParserService } from './parser';
+import { SpecificationService } from './specification';
 
 export class MonacoService {
+  private static actualVersion: string = '2.0.0';
   private static Monaco: any = null;
   private static Editor: any = null;
 
@@ -24,62 +27,90 @@ export class MonacoService {
     MonacoService.Editor = value;
   }
 
-  static loadMonaco() {
-    loader
-      .init()
-      .then(monacoInstance => {
-        // for handling the monaco-yaml plugin
-        (window as any).monaco = monacoInstance;
-        monacoInstance.editor.defineTheme('asyncapi-theme', {
-          base: 'vs-dark',
-          inherit: true,
-          colors: {
-            'editor.background': '#252f3f',
-            'editor.lineHighlightBackground': '#1f2a37',
-          },
-          rules: [{ token: '', background: '#252f3f' }],
-        });
+  static updateLanguageConfig(document: AsyncAPIDocument) {
+    const version =
+      (document && document.version()) || SpecificationService.getLastVersion();
+    if (version === this.actualVersion) {
+      return;
+    }
+    this.loadLanguageConfig(version);
+    this.actualVersion = version;
+  }
 
-        let allowedVersion = Object.keys(specs);
-        allowedVersion.splice(0, 5);
-        const schemas = allowedVersion.map(v => specs[v]);
+  static prepareLanguageConfig(
+    asyncAPIVersion: string,
+  ): monacoAPI.languages.json.DiagnosticsOptions {
+    return {
+      validate: true,
+      enableSchemaRequest: true,
+      completion: true,
+      schemas: [
+        {
+          uri: 'https://www.asyncapi.com/', // id of the first schema
+          fileMatch: ['*'], // associate with model
+          schema: specs[asyncAPIVersion],
+        },
+      ],
+    } as any;
+  }
 
-        // @ts-ignore
-        import('monaco-yaml/lib/esm/monaco.contribution').then(() => {
-          const options = {
-            validate: true,
-            enableSchemaRequest: true,
-            completion: true,
-            schemas: [
-              {
-                uri: 'http://myserver/foo-schema.json', // id of the first schema
-                fileMatch: ['*'], // associate with our model
-                schema: {
-                  id: 'http://myserver/foo-schema.json',
-                  oneOf: schemas,
-                },
-              },
-            ],
-          };
+  static loadLanguageConfig(asyncAPIVersion: string) {
+    const monacoInstance = (window as any).monaco as typeof monacoAPI;
+    if (!monacoInstance) return;
 
-          const json = monacoInstance.languages.json;
-          json && json.jsonDefaults.setDiagnosticsOptions(options);
-          monacoInstance.languages.registerCompletionItemProvider(
-            'json',
-            MonacoService.getRefsCompletionProvider('json'),
-          );
+    const options = this.prepareLanguageConfig(asyncAPIVersion);
 
-          const yaml = (monacoInstance.languages as any).yaml;
-          yaml && yaml.yamlDefaults.setDiagnosticsOptions(options);
-          monacoInstance.languages.registerCompletionItemProvider(
-            'yaml',
-            MonacoService.getRefsCompletionProvider('yaml'),
-          );
+    const json = monacoInstance.languages.json;
+    json && json.jsonDefaults.setDiagnosticsOptions(options);
 
-          state.editor.monaco.set(() => monacoInstance);
-        });
-      })
-      .catch(console.error);
+    const yaml = (monacoInstance.languages as any).yaml;
+    yaml && yaml.yamlDefaults.setDiagnosticsOptions(options);
+  }
+
+  static registerCompletionItemProviders() {
+    const monacoInstance = (window as any).monaco as typeof monacoAPI;
+    if (!monacoInstance) return;
+
+    monacoInstance.languages.registerCompletionItemProvider(
+      'json',
+      MonacoService.getRefsCompletionProvider('json'),
+    );
+    monacoInstance.languages.registerCompletionItemProvider(
+      'yaml',
+      MonacoService.getRefsCompletionProvider('yaml'),
+    );
+  }
+
+  static loadMonacoConfig() {
+    const monacoInstance = (window as any).monaco as typeof monacoAPI;
+    if (!monacoInstance) return;
+
+    monacoInstance.editor.defineTheme('asyncapi-theme', {
+      base: 'vs-dark',
+      inherit: true,
+      colors: {
+        'editor.background': '#252f3f',
+        'editor.lineHighlightBackground': '#1f2a37',
+      },
+      rules: [{ token: '', background: '#252f3f' }],
+    });
+  }
+
+  static async loadMonaco() {
+    const monacoInstance = await loader.init();
+    (window as any).monaco = monacoInstance;
+
+    // load monaco config
+    this.loadMonacoConfig();
+
+    // load yaml plugin
+    // @ts-ignore
+    await import('monaco-yaml/lib/esm/monaco.contribution');
+
+    // load language config (for json and yaml)
+    this.loadLanguageConfig(SpecificationService.getLastVersion());
+    this.registerCompletionItemProviders();
+    state.editor.monaco.set(() => monacoInstance);
   }
 
   static getRefsCompletionProvider(

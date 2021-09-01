@@ -14,8 +14,6 @@ function goToLine(
   hash: string,
   language: string = 'yaml',
 ) {
-  editor = (window as any).Editor;
-
   let location = undefined;
   try {
     location = getLocationOf(jsonPointer, spec, language);
@@ -37,8 +35,9 @@ function goToLine(
   } catch (e) {}
 
   try {
-    editor.revealLineInCenter(location.startLine);
-    editor.setPosition({ column: 1, lineNumber: location.startLine });
+    editor = (window as any).Editor;
+    editor && editor.revealLineInCenter(location.startLine);
+    editor && editor.setPosition({ column: 1, lineNumber: location.startLine });
   } catch (e) {
     console.log(e);
   }

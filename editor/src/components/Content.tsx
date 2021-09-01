@@ -18,65 +18,25 @@ export const Content: React.FunctionComponent<ContentProps> = ({}) => {
   const editorEnabled = sidebarState.panels.editor.get();
   const templateEnabled = sidebarState.panels.template.get();
 
-  // const navigationAndEditor = (
-  //   <SplitPane
-  //     minSize={220}
-  //     maxSize={360}
-  //     pane1Style={!navigationEnabled ? { width: '0px' } : { overflow: 'auto' }}
-  //     pane2Style={!editorEnabled ? { width: '0px' } : undefined}
-  //     primary={!editorEnabled ? 'second' : 'first'}
-  //     defaultSize={
-  //       parseInt(localStorage.getItem('splitPos:left') || '0', 10) || 220
-  //     }
-  //     onChange={debounce((size: string) => {
-  //       localStorage.setItem('splitPos:left', String(size));
-  //     }, 100)}
-  //   >
-  //     <Navigation />
-  //     <Editor />
-  //   </SplitPane>
-  // );
-
-  // return (
-  //   <div className="flex flex-1 flex-row relative">
-  //     {filesExplorerEnabled && <FilesExplorer />}
-  //     <div className="flex flex-1 flex-row relative">
-  //       <SplitPane
-  //         minSize={0}
-  //         pane1Style={
-  //           !navigationEnabled && !editorEnabled ? { width: '0px' } : undefined
-  //         }
-  //         pane2Style={
-  //           !templateEnabled ? { width: '0px' } : { overflow: 'auto' }
-  //         }
-  //         primary={!templateEnabled ? 'second' : 'first'}
-  //         defaultSize={
-  //           parseInt(localStorage.getItem('splitPos:center') || '0', 10) ||
-  //           '55%'
-  //         }
-  //         onChange={debounce((size: string) => {
-  //           localStorage.setItem('splitPos:center', String(size));
-  //         }, 100)}
-  //       >
-  //         {navigationAndEditor}
-  //         <Template />
-  //       </SplitPane>
-  //     </div>
-  //   </div>
-  // );
+  let navigationProps = {
+    size: 240,
+    onResize(props) {
+      const offsetWidth = (props.domElement as any)?.offsetWidth;
+      if (offsetWidth < 75) {
+        sidebarState.panels.navigation.set(false);
+      }
+    },
+  };
+  if (sidebarState.show.get() === false) {
+    (navigationProps as any).maxSize = 240;
+    (navigationProps as any).minSize = 240;
+    delete (navigationProps as any).onResize;
+  }
 
   return (
     <ReflexContainer orientation="vertical">
       {navigationEnabled && (
-        <ReflexElement
-          size={240}
-          onResize={props => {
-            const offsetWidth = (props.domElement as any)?.offsetWidth;
-            if (offsetWidth < 75) {
-              sidebarState.panels.navigation.set(false);
-            }
-          }}
-        >
+        <ReflexElement {...navigationProps}>
           <Navigation />
         </ReflexElement>
       )}
@@ -99,3 +59,53 @@ export const Content: React.FunctionComponent<ContentProps> = ({}) => {
     </ReflexContainer>
   );
 };
+
+/////////////////////////
+//// For Split Pane library
+/////////////////////////
+// const navigationAndEditor = (
+//   <SplitPane
+//     minSize={220}
+//     maxSize={360}
+//     pane1Style={!navigationEnabled ? { width: '0px' } : { overflow: 'auto' }}
+//     pane2Style={!editorEnabled ? { width: '0px' } : undefined}
+//     primary={!editorEnabled ? 'second' : 'first'}
+//     defaultSize={
+//       parseInt(localStorage.getItem('splitPos:left') || '0', 10) || 220
+//     }
+//     onChange={debounce((size: string) => {
+//       localStorage.setItem('splitPos:left', String(size));
+//     }, 100)}
+//   >
+//     <Navigation />
+//     <Editor />
+//   </SplitPane>
+// );
+
+// return (
+//   <div className="flex flex-1 flex-row relative">
+//     {filesExplorerEnabled && <FilesExplorer />}
+//     <div className="flex flex-1 flex-row relative">
+//       <SplitPane
+//         minSize={0}
+//         pane1Style={
+//           !navigationEnabled && !editorEnabled ? { width: '0px' } : undefined
+//         }
+//         pane2Style={
+//           !templateEnabled ? { width: '0px' } : { overflow: 'auto' }
+//         }
+//         primary={!templateEnabled ? 'second' : 'first'}
+//         defaultSize={
+//           parseInt(localStorage.getItem('splitPos:center') || '0', 10) ||
+//           '55%'
+//         }
+//         onChange={debounce((size: string) => {
+//           localStorage.setItem('splitPos:center', String(size));
+//         }, 100)}
+//       >
+//         {navigationAndEditor}
+//         <Template />
+//       </SplitPane>
+//     </div>
+//   </div>
+// );

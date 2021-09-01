@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import toast from 'react-hot-toast';
 import MonacoEditor, {
   EditorProps as MonacoEditorProps,
 } from '@monaco-editor/react';
@@ -15,14 +16,22 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
 }) => {
   const editorState = state.useEditorState();
 
-  function handleEditorDidMount(editor: any) {
-    // editorState.editor.set(editor);
+  async function handleEditorDidMount(editor: any) {
     (window as any).Editor = editor;
     ParserService.parseSpec(editorState.editorValue.value);
+
     editor.addCommand(
       monacoAPI.KeyMod.CtrlCmd | monacoAPI.KeyCode.KEY_S,
       function() {
-        console.log('SAVE pressed!');
+        const editorValue = editorState.editorValue.value;
+        localStorage.setItem('document', editorValue);
+        toast.success(
+          <div>
+            <span className="block text-bold">
+              Document succesfully saved to the LocalStorage!
+            </span>
+          </div>,
+        );
       },
     );
 
@@ -50,9 +59,10 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
       return;
     }
 
-    const processedValue = editorState.processedValue.get();
-    editorState.editorValue.set(processedValue);
-    editor.getModel().setValue(processedValue);
+    const processedValue = state.editor.processedValue.get();
+    state.editor.editorValue.set(processedValue);
+    const model = editor.getModel();
+    model && model.setValue(processedValue);
   }, [editorState.processedValue.get()]);
 
   useEffect(() => {

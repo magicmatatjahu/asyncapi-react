@@ -2,6 +2,7 @@ import { parse } from '@asyncapi/parser';
 import YAML from 'js-yaml';
 
 import state from '../state';
+import { MonacoService } from './monaco';
 
 export class ParserService {
   static parseSpec(spec: string) {
@@ -10,13 +11,17 @@ export class ParserService {
       .then(v => {
         parserState.parsedSpec.set(v);
         parserState.errors.set([]);
+        MonacoService.updateLanguageConfig(v);
       })
       .catch(e => {
         let errors = [];
-        if (
-          ParserService.isValidationError(e) ||
-          ParserService.isUnsupportedVersionError(e)
-        ) {
+        if (ParserService.isUnsupportedVersionError(e)) {
+          errors.push({
+            title: e.message,
+            location: e.validationErrors,
+          });
+        }
+        if (ParserService.isValidationError(e)) {
           errors.push(...e.validationErrors);
         }
         if (ParserService.isYamlError(e) || ParserService.isJsonError(e)) {

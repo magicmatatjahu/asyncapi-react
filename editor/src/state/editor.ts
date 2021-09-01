@@ -1,6 +1,8 @@
 import { createState, useState } from '@hookstate/core';
 
-const schema = `asyncapi: '2.0.0'
+const schema =
+  localStorage.getItem('document') ||
+  `asyncapi: '2.0.0'
 id: 'urn:rpc:example:client'
 defaultContentType: application/json
 
@@ -93,7 +95,7 @@ export const editorState = createState<EditorState>({
   loaded: false,
   height: 'calc(100% - 36px)',
   fileName: 'asyncapi',
-  language: 'yaml',
+  language: schema.trim()[0] === '{' ? 'json' : 'yaml',
   editorValue: schema,
   processedValue: '',
 });

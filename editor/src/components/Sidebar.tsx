@@ -23,6 +23,10 @@ interface SidebarProps {}
 export const Sidebar: React.FunctionComponent<SidebarProps> = ({}) => {
   const sidebarState = state.useSidebarState();
 
+  if (sidebarState.show.get() === false) {
+    return null;
+  }
+
   const navigation: NavItem[] = [
     // navigation
     {

@@ -1,5 +1,6 @@
 export * from './BaseModal';
 export * from './ConverterModal';
+export * from './ExportToLinkModal';
 export * from './ImportURLModal';
 export * from './ImportBase64Modal';
 export * from './ShareBase64Modal';
