@@ -60,7 +60,7 @@ export const ExportToLinkModal: React.FunctionComponent = () => {
         <textarea
           name="base64-source"
           className="shadow-sm focus:ring-pink-500 focus:border-pink-500 w-1/2 block w-full sm:text-sm border-gray-300 rounded-md"
-          rows={1}
+          rows={10}
           value={link}
           readOnly={true}
         />

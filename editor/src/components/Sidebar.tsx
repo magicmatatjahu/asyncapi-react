@@ -1,16 +1,9 @@
 import React from 'react';
 import { StateMethods } from '@hookstate/core';
-import {
-  VscFiles,
-  VscListSelection,
-  VscCode,
-  VscOpenPreview,
-  VscSettingsGear,
-} from 'react-icons/vsc';
-
-import { Modal } from './Modal';
+import { VscListSelection, VscCode, VscOpenPreview } from 'react-icons/vsc';
 
 import state from '../state';
+import { SettingsModal } from './Modals';
 
 interface NavItem {
   name: string;
@@ -48,17 +41,7 @@ export const Sidebar: React.FunctionComponent<SidebarProps> = ({}) => {
     },
   ];
 
-  const settings = (
-    <Modal
-      opener={
-        <button className="flex text-md text-gray-500 hover:text-white focus:outline-none p-4">
-          <VscSettingsGear className="h-5 w-5" />
-        </button>
-      }
-      title={'lol'}
-      body={<div></div>}
-    />
-  );
+  const settings = <SettingsModal />;
 
   return (
     <div className="flex flex-col flex-none bg-gray-800 shadow-lg border-r border-gray-700 justify-between">

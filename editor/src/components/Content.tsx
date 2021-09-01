@@ -20,7 +20,7 @@ export const Content: React.FunctionComponent<ContentProps> = ({}) => {
 
   let navigationProps = {
     size: 240,
-    onResize(props) {
+    onResize(props: any) {
       const offsetWidth = (props.domElement as any)?.offsetWidth;
       if (offsetWidth < 75) {
         sidebarState.panels.navigation.set(false);

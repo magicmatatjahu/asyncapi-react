@@ -2,7 +2,7 @@ import React from 'react';
 import { AsyncAPIDocument } from '@asyncapi/parser';
 import { AsyncApiComponentWP } from '@asyncapi/react-component';
 
-import state from '../state';
+import state from '../../state';
 
 interface HTMLWrapperProps {}
 

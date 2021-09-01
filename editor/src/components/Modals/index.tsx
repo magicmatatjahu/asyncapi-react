@@ -3,6 +3,7 @@ export * from './ConverterModal';
 export * from './ExportToLinkModal';
 export * from './ImportURLModal';
 export * from './ImportBase64Modal';
+export * from './SettingsModal';
 export * from './ShareBase64Modal';
 
 export interface IModalProps {

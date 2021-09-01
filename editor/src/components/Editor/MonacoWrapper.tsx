@@ -60,9 +60,11 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
     }
 
     const processedValue = state.editor.processedValue.get();
-    state.editor.editorValue.set(processedValue);
-    const model = editor.getModel();
-    model && model.setValue(processedValue);
+    if (processedValue) {
+      state.editor.editorValue.set(processedValue);
+      const model = editor.getModel();
+      model && model.setValue(processedValue);
+    }
   }, [editorState.processedValue.get()]);
 
   useEffect(() => {

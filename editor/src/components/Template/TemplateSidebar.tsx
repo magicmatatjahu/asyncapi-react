@@ -1,9 +1,5 @@
 import React from 'react';
 
-import { Dropdown } from './Dropdown';
-import { Modal } from './Modal';
-import { Tabs } from './Tabs';
-
 interface TemplateSidebarProps {}
 
 export const TemplateSidebar: React.FunctionComponent<TemplateSidebarProps> = ({}) => {
