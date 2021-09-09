@@ -28,6 +28,8 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
     NavigationService.onInit();
   }, []);
 
+  console.log(appState);
+
   if (appState.initialized.get() === false) {
     return (
       <div className="flex flex-col h-full w-full h-screen">

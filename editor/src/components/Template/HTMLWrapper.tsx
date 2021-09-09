@@ -18,10 +18,10 @@ export const HTMLWrapper: React.FunctionComponent<HTMLWrapperProps> = () => {
     : null;
 
   useEffect(() => {
-    if (editorState.loaded.get() === true) {
+    if (editorState.editorLoaded.get() === true) {
       setTimeout(NavigationService.scrollToHash, 100);
     }
-  }, [editorState.loaded.get()]);
+  }, [editorState.editorLoaded.get()]);
 
   return (
     parsedSpec && (

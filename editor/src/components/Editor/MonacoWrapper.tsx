@@ -47,7 +47,7 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
     //   }
     // });
 
-    editorState.loaded.set(true);
+    editorState.editorLoaded.set(true);
   }
 
   const onChange = debounce((v: string) => {
@@ -59,7 +59,7 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
     MonacoService.loadMonaco();
   }, []);
 
-  return editorState.monaco.get() ? (
+  return editorState.monacoLoaded.get() ? (
     <MonacoEditor
       language={editorState.language.get()}
       defaultValue={editorState.editorValue.get()}

@@ -10,6 +10,7 @@ export class ParserService {
     return parse(spec)
       .then(v => {
         parserState.parsedSpec.set(v);
+        parserState.valid.set(true);
         parserState.errors.set([]);
         MonacoService.updateLanguageConfig(v);
         return v;
@@ -17,6 +18,7 @@ export class ParserService {
       .catch(err => {
         const errors = this.filterErrors(err);
         parserState.parsedSpec.set(null);
+        parserState.valid.set(false);
         parserState.errors.set(errors);
       });
   }

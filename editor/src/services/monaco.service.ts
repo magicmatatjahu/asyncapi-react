@@ -55,7 +55,7 @@ export class MonacoService {
   }
 
   static loadLanguageConfig(asyncAPIVersion: string) {
-    const monacoInstance = (window as any).monaco as typeof monacoAPI;
+    const monacoInstance = window.Monaco;
     if (!monacoInstance) return;
 
     const options = this.prepareLanguageConfig(asyncAPIVersion);
@@ -68,7 +68,7 @@ export class MonacoService {
   }
 
   static registerCompletionItemProviders() {
-    const monacoInstance = (window as any).monaco as typeof monacoAPI;
+    const monacoInstance = window.Monaco;
     if (!monacoInstance) return;
 
     monacoInstance.languages.registerCompletionItemProvider(
@@ -82,7 +82,7 @@ export class MonacoService {
   }
 
   static loadMonacoConfig() {
-    const monacoInstance = (window as any).monaco as typeof monacoAPI;
+    const monacoInstance = window.Monaco;
     if (!monacoInstance) return;
 
     monacoInstance.editor.defineTheme('asyncapi-theme', {
@@ -98,7 +98,7 @@ export class MonacoService {
 
   static async loadMonaco() {
     const monacoInstance = await loader.init();
-    (window as any).monaco = monacoInstance;
+    window.Monaco = monacoInstance;
 
     // load monaco config
     this.loadMonacoConfig();
@@ -110,7 +110,7 @@ export class MonacoService {
     // load language config (for json and yaml)
     this.loadLanguageConfig(SpecificationService.getLastVersion());
     this.registerCompletionItemProviders();
-    state.editor.monaco.set(() => monacoInstance);
+    state.editor.monacoLoaded.set(true);
   }
 
   static getRefsCompletionProvider(

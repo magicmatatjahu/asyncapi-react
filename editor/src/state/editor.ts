@@ -79,25 +79,21 @@ components:
 `;
 
 export interface EditorState {
-  monaco: any;
-  editor: any;
-  loaded: boolean;
   height: string;
   fileName: string;
   language: string;
   editorValue: string;
-  processedValue: string;
+  monacoLoaded: boolean;
+  editorLoaded: boolean;
 }
 
 export const editorState = createState<EditorState>({
-  monaco: null,
-  editor: null,
-  loaded: false,
   height: 'calc(100% - 36px)',
   fileName: 'asyncapi',
   language: schema.trim()[0] === '{' ? 'json' : 'yaml',
   editorValue: schema,
-  processedValue: '',
+  monacoLoaded: false,
+  editorLoaded: false,
 });
 
 export function useEditorState() {

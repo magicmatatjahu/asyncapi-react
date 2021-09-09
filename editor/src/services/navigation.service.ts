@@ -55,7 +55,7 @@ export class NavigationService {
 
   static scrollToEditorLine(startLine: number) {
     try {
-      const editor = (window as any).Editor;
+      const editor = window.Editor;
       editor && editor.revealLineInCenter(startLine);
       editor && editor.setPosition({ column: 1, lineNumber: startLine });
     } catch (err) {}
@@ -96,8 +96,9 @@ export class NavigationService {
       await SpecificationService.parseSpec(state.editor.editorValue.get());
       state.sidebar.show.set(false);
       state.sidebar.panels.editor.set(false);
-      state.editor.loaded.set(true);
-      state.app.initialized.set(true);
+      state.editor.monacoLoaded.set(true);
+      state.editor.editorLoaded.set(true);
     }
+    state.app.initialized.set(true);
   }
 }

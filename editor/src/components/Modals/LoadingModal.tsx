@@ -12,12 +12,12 @@ export const LoadingModal: React.FunctionComponent<LoadingModalProps> = ({
   children,
 }) => {
   const editorState = state.useEditorState();
-  const [showModal, setShowModal] = useState(!editorState.loaded.get());
+  const [showModal, setShowModal] = useState(!editorState.editorLoaded.get());
   const refDiv = useRef(null);
 
   useEffect(() => {
-    setShowModal(!editorState.loaded.get());
-  }, [editorState.loaded.get()]);
+    setShowModal(!editorState.editorLoaded.get());
+  }, [editorState.editorLoaded.get()]);
 
   return (
     <Transition.Root show={showModal} as={Fragment}>
