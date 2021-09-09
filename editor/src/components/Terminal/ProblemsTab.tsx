@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavigationService } from '../../services';
 
 import state from '../../state';
 
@@ -38,15 +39,11 @@ export const ProblemsTabContent: React.FunctionComponent<ProblemsTabProps> = () 
                 <tr key={err.title || id} className="border-t border-gray-700">
                   <td
                     className="p-2 cursor-pointer text-center"
-                    onClick={() => {
-                      (window as any).Editor.revealLineInCenter(
+                    onClick={() =>
+                      NavigationService.scrollToEditorLine(
                         err.location?.startLine || 0,
-                      );
-                      (window as any).Editor.setPosition({
-                        column: 1,
-                        lineNumber: err.location?.startLine || 0,
-                      });
-                    }}
+                      )
+                    }
                   >
                     {err.location?.startLine || '-'}
                   </td>

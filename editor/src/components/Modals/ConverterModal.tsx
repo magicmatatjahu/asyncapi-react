@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-// @ts-ignore
-import specs from '@asyncapi/specs';
 import { BaseModal } from './index';
 
-import { ConverterService } from '../../services';
+import { EditorService, SpecificationService } from '../../services';
 import state from '../../state';
 
 export const ConverterModal: React.FunctionComponent = () => {
   const [version, setVersion] = useState('');
 
   const actualVersion = state.parser.parsedSpec.get()?.version();
-  let allowedVersion = Object.keys(specs);
+  const latestVersion = SpecificationService.getLastVersion();
+  let allowedVersion = Object.keys(SpecificationService.getSpecs());
   allowedVersion.splice(0, allowedVersion.indexOf(actualVersion) + 1);
 
   const onSubmit = () => {
-    toast.promise(ConverterService.convertSpec(version), {
+    toast.promise(EditorService.convertSpec(version), {
       loading: 'Converting...',
       success: (
         <div>
@@ -67,9 +66,7 @@ export const ConverterModal: React.FunctionComponent = () => {
             >
               <option value="">Please Select</option>
               {allowedVersion.length > 1 && (
-                <option value={ConverterService.getLastVersion()}>
-                  Latest
-                </option>
+                <option value={latestVersion}>Latest</option>
               )}
               {allowedVersion.map(v => (
                 <option key={v} value={v}>

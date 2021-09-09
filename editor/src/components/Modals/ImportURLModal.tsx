@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { BaseModal } from './index';
 
-import { ConverterService } from '../../services';
+import { EditorService } from '../../services';
 
 export const ImportURLModal: React.FunctionComponent = () => {
   const [url, setUrl] = useState('');
 
   const onSubmit = () => {
-    toast.promise(ConverterService.importFromURL(url), {
+    toast.promise(EditorService.importFromURL(url), {
       loading: 'Importing...',
       success: (
         <div>

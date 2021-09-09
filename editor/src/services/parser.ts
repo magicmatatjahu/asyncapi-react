@@ -1,49 +1,55 @@
-import { parse } from '@asyncapi/parser';
+import { AsyncAPIDocument, parse } from '@asyncapi/parser';
 import YAML from 'js-yaml';
 
 import state from '../state';
-import { MonacoService } from './monaco';
+import { MonacoService } from './monaco.service';
 
 export class ParserService {
-  static parseSpec(spec: string) {
+  static async parseSpec(spec: string): Promise<AsyncAPIDocument | void> {
     const parserState = state.parser;
-    parse(spec)
+    return parse(spec)
       .then(v => {
         parserState.parsedSpec.set(v);
         parserState.errors.set([]);
         MonacoService.updateLanguageConfig(v);
+        return v;
       })
-      .catch(e => {
-        let errors = [];
-        if (ParserService.isUnsupportedVersionError(e)) {
-          errors.push({
-            title: e.message,
-            location: e.validationErrors,
-          });
-        }
-        if (ParserService.isValidationError(e)) {
-          errors.push(...e.validationErrors);
-        }
-        if (ParserService.isYamlError(e) || ParserService.isJsonError(e)) {
-          errors.push(e);
-        }
-        if (ParserService.isDereferenceError(e)) {
-          errors.push(
-            ...e.refs.map((ref: any) => ({
-              title: e.title,
-              location: { ...ref },
-            })),
-          );
-        }
-        if (errors.length === 0) {
-          errors.push(e);
-        }
+      .catch(err => {
+        const errors = this.filterErrors(err);
         parserState.parsedSpec.set(null);
         parserState.errors.set(errors);
       });
   }
 
-  static errorHasLocation(err: any) {
+  private static filterErrors(err: any) {
+    let errors = [];
+    if (ParserService.isUnsupportedVersionError(err)) {
+      errors.push({
+        title: err.message,
+        location: err.validationErrors,
+      });
+    }
+    if (ParserService.isValidationError(err)) {
+      errors.push(...err.validationErrors);
+    }
+    if (ParserService.isYamlError(err) || ParserService.isJsonError(err)) {
+      errors.push(err);
+    }
+    if (ParserService.isDereferenceError(err)) {
+      errors.push(
+        ...err.refs.map((ref: any) => ({
+          title: err.title,
+          location: { ...ref },
+        })),
+      );
+    }
+    if (errors.length === 0) {
+      errors.push(err);
+    }
+    return errors;
+  }
+
+  private static errorHasLocation(err: any) {
     return (
       ParserService.isValidationError(err) ||
       ParserService.isJsonError(err) ||
@@ -53,33 +59,33 @@ export class ParserService {
     );
   }
 
-  static isValidationError(err: any) {
+  private static isValidationError(err: any) {
     return (
       err &&
       err.type === 'https://github.com/asyncapi/parser-js/validation-errors'
     );
   }
 
-  static isJsonError(err: any) {
+  private static isJsonError(err: any) {
     return (
       err && err.type === 'https://github.com/asyncapi/parser-js/invalid-json'
     );
   }
 
-  static isYamlError(err: any) {
+  private static isYamlError(err: any) {
     return (
       err && err.type === 'https://github.com/asyncapi/parser-js/invalid-yaml'
     );
   }
 
-  static isUnsupportedVersionError(err: any) {
+  private static isUnsupportedVersionError(err: any) {
     return (
       err &&
       err.type === 'https://github.com/asyncapi/parser-js/unsupported-version'
     );
   }
 
-  static isDereferenceError(err: any) {
+  private static isDereferenceError(err: any) {
     return (
       err &&
       err.type === 'https://github.com/asyncapi/parser-js/dereference-error'

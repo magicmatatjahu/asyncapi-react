@@ -2,18 +2,19 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { BaseModal } from './index';
 
-import { ConverterService, WindowService } from '../../services';
+import { NavigationService } from '../../services';
 import state from '../../state';
+import { FormatService } from '../../services/format.service';
 
 export const ExportToLinkModal: React.FunctionComponent = () => {
   const editorState = state.useEditorState();
   const document = editorState.editorValue.get();
-  const base64Document = ConverterService.exportToBase64(document);
-  const link = WindowService.createLink(base64Document);
+  const base64Document = FormatService.encodeBase64(document);
+  const base64Link = NavigationService.createBase64Link(base64Document);
 
   function onClickCopy() {
     if (typeof navigator !== undefined) {
-      return navigator.clipboard && navigator.clipboard.writeText(link);
+      return navigator.clipboard && navigator.clipboard.writeText(base64Link);
     }
     return Promise.resolve();
   }
@@ -61,7 +62,7 @@ export const ExportToLinkModal: React.FunctionComponent = () => {
           name="base64-source"
           className="shadow-sm focus:ring-pink-500 focus:border-pink-500 w-1/2 block w-full sm:text-sm border-gray-300 rounded-md"
           rows={10}
-          value={link}
+          value={base64Link}
           readOnly={true}
         />
       </div>

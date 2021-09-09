@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { BaseModal } from './index';
 
-import { ConverterService } from '../../services';
+import { EditorService } from '../../services';
 
 export const ImportBase64Modal: React.FunctionComponent = () => {
   const [base64, setBase64] = useState('');
 
   const onSubmit = () => {
-    toast.promise(ConverterService.importBase64(base64), {
+    toast.promise(EditorService.importBase64(base64), {
       loading: 'Importing...',
       success: (
         <div>

@@ -6,8 +6,9 @@ import MonacoEditor, {
 import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { debounce } from '../../helpers';
-import { ConverterService, MonacoService, ParserService } from '../../services';
+import { EditorService, MonacoService, ParserService } from '../../services';
 import state from '../../state';
+import { SpecificationService } from '../../services/specification.service';
 
 export interface MonacoWrapperProps extends MonacoEditorProps {}
 
@@ -16,8 +17,10 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
 }) => {
   const editorState = state.useEditorState();
 
-  async function handleEditorDidMount(editor: any) {
-    (window as any).Editor = editor;
+  async function handleEditorDidMount(
+    editor: monacoAPI.editor.IStandaloneCodeEditor,
+  ) {
+    window.Editor = editor;
     ParserService.parseSpec(editorState.editorValue.value);
 
     editor.addCommand(
@@ -28,7 +31,7 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
         toast.success(
           <div>
             <span className="block text-bold">
-              Document succesfully saved to the LocalStorage!
+              Document succesfully saved to the cache!
             </span>
           </div>,
         );
@@ -48,24 +51,9 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
   }
 
   const onChange = debounce((v: string) => {
-    editorState.language.set(ConverterService.retrieveLangauge(v));
-    editorState.editorValue.set(v);
-    ParserService.parseSpec(v);
+    EditorService.updateState(v);
+    SpecificationService.parseSpec(v);
   }, 250);
-
-  useEffect(() => {
-    const editor = (window as any).Editor;
-    if (!editor) {
-      return;
-    }
-
-    const processedValue = state.editor.processedValue.get();
-    if (processedValue) {
-      state.editor.editorValue.set(processedValue);
-      const model = editor.getModel();
-      model && model.setValue(processedValue);
-    }
-  }, [editorState.processedValue.get()]);
 
   useEffect(() => {
     MonacoService.loadMonaco();
@@ -73,7 +61,6 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
 
   return editorState.monaco.get() ? (
     <MonacoEditor
-      path={editorState.fileName.get()}
       language={editorState.language.get()}
       defaultValue={editorState.editorValue.get()}
       theme="asyncapi-theme"

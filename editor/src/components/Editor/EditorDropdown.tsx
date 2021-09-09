@@ -11,7 +11,7 @@ import {
 } from '../Modals';
 import { Dropdown } from '../common';
 
-import { ConverterService } from '../../services';
+import { EditorService } from '../../services';
 import state from '../../state';
 
 interface EditorDropdownProps {}
@@ -41,8 +41,8 @@ export const EditorDropdown: React.FunctionComponent<EditorDropdownProps> = ({})
               <input
                 type="file"
                 style={{ position: 'fixed', top: '-100em' }}
-                onChange={e => {
-                  toast.promise(ConverterService.importFile(e), {
+                onChange={event => {
+                  toast.promise(EditorService.importFile(event.target.files), {
                     loading: 'Importing...',
                     success: (
                       <div>
@@ -77,8 +77,8 @@ export const EditorDropdown: React.FunctionComponent<EditorDropdownProps> = ({})
               onClick={() => {
                 toast.promise(
                   language === 'yaml'
-                    ? ConverterService.saveAsYaml()
-                    : ConverterService.saveAsJson(),
+                    ? EditorService.saveAsYaml()
+                    : EditorService.saveAsJson(),
                   {
                     loading: 'Saving...',
                     success: (
@@ -113,8 +113,8 @@ export const EditorDropdown: React.FunctionComponent<EditorDropdownProps> = ({})
               onClick={() => {
                 toast.promise(
                   language === 'yaml'
-                    ? ConverterService.saveAsJson()
-                    : ConverterService.saveAsJson(),
+                    ? EditorService.saveAsJson()
+                    : EditorService.saveAsJson(),
                   {
                     loading: 'Saving...',
                     success: (
@@ -157,8 +157,8 @@ export const EditorDropdown: React.FunctionComponent<EditorDropdownProps> = ({})
               onClick={() => {
                 toast.promise(
                   language === 'yaml'
-                    ? ConverterService.convertToJsonInEditor()
-                    : ConverterService.convertToYamlInEditor(),
+                    ? EditorService.convertToJson()
+                    : EditorService.convertToYaml(),
                   {
                     loading: 'Saving...',
                     success: (

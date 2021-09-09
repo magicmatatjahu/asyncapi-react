@@ -1,50 +1,17 @@
 import React, { useEffect, useState } from 'react';
 
-// @ts-ignore
-import { getLocationOf } from '@asyncapi/parser/lib/utils';
+import { AsyncAPIDocument } from '@asyncapi/parser';
 
 import state from '../state';
+import { NavigationService } from '../services';
 
 interface NavigationProps {}
 
-function goToLine(
-  editor: any,
-  jsonPointer: any,
-  spec: any,
-  hash: string,
-  language: string = 'yaml',
-) {
-  let location = undefined;
-  try {
-    location = getLocationOf(jsonPointer, spec, language);
-  } catch (e) {}
-
-  if (!location || typeof location.startLine !== 'number') {
-    return;
-  }
-
-  try {
-    const escapedHash = CSS.escape(hash);
-    const items = document.querySelectorAll(
-      escapedHash.startsWith('#') ? escapedHash : `#${escapedHash}`,
-    );
-    if (items.length) {
-      const element = items[0];
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  } catch (e) {}
-
-  try {
-    editor = (window as any).Editor;
-    editor && editor.revealLineInCenter(location.startLine);
-    editor && editor.setPosition({ column: 1, lineNumber: location.startLine });
-  } catch (e) {
-    console.log(e);
-  }
-
-  hash = hash.startsWith('#') ? hash : `#${hash}`;
-  window.history.pushState({}, '', hash);
-  window.dispatchEvent(new HashChangeEvent('hashchange'));
+interface NavigationSectionProps {
+  spec: AsyncAPIDocument;
+  rawSpec: string;
+  language: string;
+  hash: string;
 }
 
 export const Navigation: React.FunctionComponent<NavigationProps> = () => {
@@ -53,15 +20,15 @@ export const Navigation: React.FunctionComponent<NavigationProps> = () => {
   const editorState = state.useEditorState();
   const parserState = state.useParserState();
 
-  const editor = editorState.editor.get();
-  const rawSpec = editorState.editorValue.value;
-  const language = editorState.language.value;
-
-  const spec = parserState.parsedSpec.value;
+  const rawSpec = editorState.editorValue.get();
+  const language = editorState.language.get();
+  const spec = parserState.parsedSpec.get();
 
   useEffect(() => {
+    // remove `#` char
     setHash(window.location.hash.substring(1));
     const fn = () => {
+      // remove `#` char
       setHash(window.location.hash.substring(1));
     };
     window.addEventListener('hashchange', fn);
@@ -78,241 +45,305 @@ export const Navigation: React.FunctionComponent<NavigationProps> = () => {
     );
   }
 
-  // TODO: Change all li to <a href={id}>
   return (
     <div className="flex flex-none flex-col overflow-y-auto overflow-x-hidden bg-gray-800 h-full">
       <ul>
-        <li
-          className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 mb-4 ${
-            hash === 'introduction' ? 'bg-gray-900' : ''
-          }`}
-          onClick={() =>
-            goToLine(editor, '/info', rawSpec, 'introduction', language)
-          }
-        >
-          Introduction
-        </li>
-        {spec.hasServers() && (
-          <li className="mb-4">
-            <div
-              className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
-                hash === 'servers' ? 'bg-gray-900' : ''
-              }`}
-              onClick={() =>
-                goToLine(editor, '/servers', rawSpec, 'servers', language)
-              }
-            >
-              Servers
-            </div>
-            <ul>
-              {Object.entries(spec.servers() || {}).map(
-                ([serverName, server]) => (
-                  <li
-                    key={serverName}
-                    className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
-                      hash === `server-${serverName}` ? 'bg-gray-900' : ''
-                    }`}
-                    onClick={() =>
-                      goToLine(
-                        editor,
-                        `/servers/${serverName.replace(/\//g, '~1')}`,
-                        rawSpec,
-                        `server-${serverName}`,
-                        language,
-                      )
-                    }
-                  >
-                    <div className="flex flex-row">
-                      <div className="flex-none">
-                        <span className="mr-3 text-xs uppercase text-pink-500 font-bold">
-                          {server.protocolVersion()
-                            ? `${server.protocol()} ${server.protocolVersion()}`
-                            : server.protocol()}
-                        </span>
-                      </div>
-                      <span className="truncate">{serverName}</span>
-                    </div>
-                  </li>
-                ),
-              )}
-            </ul>
-          </li>
-        )}
         <li className="mb-4">
           <div
             className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
-              hash === 'operations' ? 'bg-gray-900' : ''
+              hash === 'introduction' ? 'bg-gray-900' : ''
             }`}
             onClick={() =>
-              goToLine(editor, '/channels', rawSpec, 'operations', language)
+              NavigationService.scrollTo(
+                '/info',
+                rawSpec,
+                'introduction',
+                language,
+              )
             }
           >
-            Operations
+            Introduction
           </div>
-          <ul>
-            {Object.entries(spec.channels() || {}).map(
-              ([channelName, channel]) => {
-                const channels: React.ReactNodeArray = [];
-
-                if (channel.hasPublish()) {
-                  channels.push(
-                    <li
-                      key={`${channelName}-publish`}
-                      className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
-                        hash === `operation-publish-${channelName}`
-                          ? 'bg-gray-900'
-                          : ''
-                      }`}
-                      onClick={() =>
-                        goToLine(
-                          editor,
-                          `/channels/${channelName.replace(/\//g, '~1')}`,
-                          rawSpec,
-                          `operation-publish-${channelName}`,
-                          language,
-                        )
-                      }
-                    >
-                      <div className="flex flex-row">
-                        <div className="flex-none">
-                          <span className="mr-3 text-xs uppercase text-blue-500 font-bold">
-                            Pub
-                          </span>
-                        </div>
-                        <span className="truncate">{channelName}</span>
-                      </div>
-                    </li>,
-                  );
-                }
-                if (channel.hasSubscribe()) {
-                  channels.push(
-                    <li
-                      key={`${channelName}-subscribe`}
-                      className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
-                        hash === `operation-subscribe-${channelName}`
-                          ? 'bg-gray-900'
-                          : ''
-                      }`}
-                      onClick={() =>
-                        goToLine(
-                          editor,
-                          `/channels/${channelName.replace(/\//g, '~1')}`,
-                          rawSpec,
-                          `operation-subscribe-${channelName}`,
-                          language,
-                        )
-                      }
-                    >
-                      <div className="flex flex-row">
-                        <div className="flex-none">
-                          <span className="mr-3 text-xs uppercase text-green-600 font-bold">
-                            Sub
-                          </span>
-                        </div>
-                        <span className="truncate">{channelName}</span>
-                      </div>
-                    </li>,
-                  );
-                }
-
-                return channels;
-              },
-            )}
-          </ul>
+        </li>
+        {spec.hasServers() && (
+          <li className="mb-4">
+            <ServersNavigation
+              spec={spec}
+              rawSpec={rawSpec}
+              language={language}
+              hash={hash}
+            />
+          </li>
+        )}
+        <li className="mb-4">
+          <OperationsNavigation
+            spec={spec}
+            rawSpec={rawSpec}
+            language={language}
+            hash={hash}
+          />
         </li>
         {spec.hasComponents() && spec.components().hasMessages() && (
           <li className="mb-4">
-            <div
-              className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
-                hash === 'messages' ? 'bg-gray-900' : ''
-              }`}
-              onClick={() =>
-                goToLine(
-                  editor,
-                  '/components/messages',
-                  rawSpec,
-                  'messages',
-                  language,
-                )
-              }
-            >
-              Messages
-            </div>
-            <ul>
-              {Object.keys(spec.components().messages() || {}).map(
-                messageName => (
-                  <li
-                    key={messageName}
-                    className={`p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate ${
-                      hash === `message-${messageName}` ? 'bg-gray-900' : ''
-                    }`}
-                    onClick={() =>
-                      goToLine(
-                        editor,
-                        `/components/messages/${messageName.replace(
-                          /\//g,
-                          '~1',
-                        )}`,
-                        rawSpec,
-                        `message-${messageName}`,
-                        language,
-                      )
-                    }
-                  >
-                    {messageName}
-                  </li>
-                ),
-              )}
-            </ul>
+            <MessagesNavigation
+              spec={spec}
+              rawSpec={rawSpec}
+              language={language}
+              hash={hash}
+            />
           </li>
         )}
-        {spec.hasComponents() && spec.components().schemas() && (
+        {spec.hasComponents() && spec.components().hasSchemas() && (
           <li className="mb-4">
-            <div
-              className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
-                hash === 'schemas' ? 'bg-gray-900' : ''
-              }`}
-              onClick={() =>
-                goToLine(
-                  editor,
-                  '/components/schemas',
-                  rawSpec,
-                  'schemas',
-                  language,
-                )
-              }
-            >
-              Schemas
-            </div>
-            <ul>
-              {Object.keys(spec.components().schemas() || {}).map(
-                schemaName => (
-                  <li
-                    key={schemaName}
-                    className={`p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate ${
-                      hash === `schema-${schemaName}` ? 'bg-gray-900' : ''
-                    }`}
-                    onClick={() =>
-                      goToLine(
-                        editor,
-                        `/components/schemas/${schemaName.replace(
-                          /\//g,
-                          '~1',
-                        )}`,
-                        rawSpec,
-                        `schema-${schemaName}`,
-                        language,
-                      )
-                    }
-                  >
-                    {schemaName}
-                  </li>
-                ),
-              )}
-            </ul>
+            <SchemasNavigation
+              spec={spec}
+              rawSpec={rawSpec}
+              language={language}
+              hash={hash}
+            />
           </li>
         )}
       </ul>
     </div>
+  );
+};
+
+const ServersNavigation: React.FunctionComponent<NavigationSectionProps> = ({
+  spec,
+  rawSpec,
+  language,
+  hash,
+}) => {
+  return (
+    <>
+      <div
+        className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
+          hash === 'servers' ? 'bg-gray-900' : ''
+        }`}
+        onClick={() =>
+          NavigationService.scrollTo('/servers', rawSpec, 'servers', language)
+        }
+      >
+        Servers
+      </div>
+      <ul>
+        {Object.entries(spec.servers() || {}).map(([serverName, server]) => (
+          <li
+            key={serverName}
+            className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
+              hash === `server-${serverName}` ? 'bg-gray-900' : ''
+            }`}
+            onClick={() =>
+              NavigationService.scrollTo(
+                `/servers/${serverName.replace(/\//g, '~1')}`,
+                rawSpec,
+                `server-${serverName}`,
+                language,
+              )
+            }
+          >
+            <div className="flex flex-row">
+              <div className="flex-none">
+                <span className="mr-3 text-xs uppercase text-pink-500 font-bold">
+                  {server.protocolVersion()
+                    ? `${server.protocol()} ${server.protocolVersion()}`
+                    : server.protocol()}
+                </span>
+              </div>
+              <span className="truncate">{serverName}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+};
+
+const OperationsNavigation: React.FunctionComponent<NavigationSectionProps> = ({
+  spec,
+  rawSpec,
+  language,
+  hash,
+}) => {
+  const operations = Object.entries(spec.channels() || {}).map(
+    ([channelName, channel]) => {
+      const channels: React.ReactNodeArray = [];
+
+      if (channel.hasPublish()) {
+        channels.push(
+          <li
+            key={`${channelName}-publish`}
+            className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
+              hash === `operation-publish-${channelName}` ? 'bg-gray-900' : ''
+            }`}
+            onClick={() =>
+              NavigationService.scrollTo(
+                `/channels/${channelName.replace(/\//g, '~1')}`,
+                rawSpec,
+                `operation-publish-${channelName}`,
+                language,
+              )
+            }
+          >
+            <div className="flex flex-row">
+              <div className="flex-none">
+                <span className="mr-3 text-xs uppercase text-blue-500 font-bold">
+                  Pub
+                </span>
+              </div>
+              <span className="truncate">{channelName}</span>
+            </div>
+          </li>,
+        );
+      }
+      if (channel.hasSubscribe()) {
+        channels.push(
+          <li
+            key={`${channelName}-subscribe`}
+            className={`p-2 pl-3 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 ${
+              hash === `operation-subscribe-${channelName}` ? 'bg-gray-900' : ''
+            }`}
+            onClick={() =>
+              NavigationService.scrollTo(
+                `/channels/${channelName.replace(/\//g, '~1')}`,
+                rawSpec,
+                `operation-subscribe-${channelName}`,
+                language,
+              )
+            }
+          >
+            <div className="flex flex-row">
+              <div className="flex-none">
+                <span className="mr-3 text-xs uppercase text-green-600 font-bold">
+                  Sub
+                </span>
+              </div>
+              <span className="truncate">{channelName}</span>
+            </div>
+          </li>,
+        );
+      }
+
+      return channels;
+    },
+  );
+
+  return (
+    <>
+      <div
+        className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
+          hash === 'operations' ? 'bg-gray-900' : ''
+        }`}
+        onClick={() =>
+          NavigationService.scrollTo(
+            '/channels',
+            rawSpec,
+            'operations',
+            language,
+          )
+        }
+      >
+        Operations
+      </div>
+      <ul>{operations}</ul>
+    </>
+  );
+};
+
+const MessagesNavigation: React.FunctionComponent<NavigationSectionProps> = ({
+  spec,
+  rawSpec,
+  language,
+  hash,
+}) => {
+  const messages = Object.keys(spec.components().messages() || {}).map(
+    messageName => (
+      <li
+        key={messageName}
+        className={`p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate ${
+          hash === `message-${messageName}` ? 'bg-gray-900' : ''
+        }`}
+        onClick={() =>
+          NavigationService.scrollTo(
+            `/components/messages/${messageName.replace(/\//g, '~1')}`,
+            rawSpec,
+            `message-${messageName}`,
+            language,
+          )
+        }
+      >
+        {messageName}
+      </li>
+    ),
+  );
+
+  return (
+    <>
+      <div
+        className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
+          hash === 'messages' ? 'bg-gray-900' : ''
+        }`}
+        onClick={() =>
+          NavigationService.scrollTo(
+            '/components/messages',
+            rawSpec,
+            'messages',
+            language,
+          )
+        }
+      >
+        Messages
+      </div>
+      <ul>{messages}</ul>
+    </>
+  );
+};
+
+const SchemasNavigation: React.FunctionComponent<NavigationSectionProps> = ({
+  spec,
+  rawSpec,
+  language,
+  hash,
+}) => {
+  const schemas = Object.keys(spec.components().schemas() || {}).map(
+    schemaName => (
+      <li
+        key={schemaName}
+        className={`p-2 pl-6 text-white cursor-pointer text-xs border-t border-gray-700 hover:bg-gray-900 truncate ${
+          hash === `schema-${schemaName}` ? 'bg-gray-900' : ''
+        }`}
+        onClick={() =>
+          NavigationService.scrollTo(
+            `/components/schemas/${schemaName.replace(/\//g, '~1')}`,
+            rawSpec,
+            `schema-${schemaName}`,
+            language,
+          )
+        }
+      >
+        {schemaName}
+      </li>
+    ),
+  );
+
+  return (
+    <>
+      <div
+        className={`p-2 pl-3 text-white cursor-pointer hover:bg-gray-900 ${
+          hash === 'schemas' ? 'bg-gray-900' : ''
+        }`}
+        onClick={() =>
+          NavigationService.scrollTo(
+            '/components/schemas',
+            rawSpec,
+            'schemas',
+            language,
+          )
+        }
+      >
+        Schemas
+      </div>
+      <ul>{schemas}</ul>
+    </>
   );
 };

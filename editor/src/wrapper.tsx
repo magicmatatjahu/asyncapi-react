@@ -5,7 +5,9 @@ import { Toaster } from 'react-hot-toast';
 import { Content, Sidebar, Toolbar } from './components';
 import { EditorProps } from './components/Editor';
 import { LoadingModal } from './components/Modals/LoadingModal';
-import { WindowService } from './services';
+import { NavigationService } from './services';
+
+import state from './state';
 
 export interface AsyncApiEditorProps {
   componentProps?: AsyncApiProps;
@@ -19,9 +21,29 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
   },
   monacoEditor = {},
 }) => {
+  const appState = state.useAppState();
+  const isReadOnly = NavigationService.isReadOnly();
+
   useEffect(() => {
-    WindowService.onInit();
+    NavigationService.onInit();
   }, []);
+
+  if (appState.initialized.get() === false) {
+    return (
+      <div className="flex flex-col h-full w-full h-screen">
+        <LoadingModal title="Loading..." />
+      </div>
+    );
+  }
+
+  if (isReadOnly) {
+    return (
+      <div className="flex flex-row flex-1 overflow-hidden h-full w-full h-screen">
+        <Content />
+        <LoadingModal title="Loading..." />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full w-full h-screen">

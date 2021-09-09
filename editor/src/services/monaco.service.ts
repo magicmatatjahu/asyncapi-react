@@ -6,7 +6,7 @@ import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
 
 import state from '../state';
 import { ParserService } from './parser';
-import { SpecificationService } from './specification';
+import { SpecificationService } from './specification.service';
 
 export class MonacoService {
   private static actualVersion: string = '2.0.0';
@@ -46,8 +46,8 @@ export class MonacoService {
       completion: true,
       schemas: [
         {
-          uri: 'https://www.asyncapi.com/', // id of the first schema
-          fileMatch: ['*'], // associate with model
+          uri: 'https://www.asyncapi.com/', // id of the schema
+          fileMatch: ['*'], // associate with all models
           schema: specs[asyncAPIVersion],
         },
       ],

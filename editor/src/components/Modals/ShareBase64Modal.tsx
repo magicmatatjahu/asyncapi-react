@@ -2,13 +2,13 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { BaseModal } from './index';
 
-import { ConverterService } from '../../services';
 import state from '../../state';
+import { FormatService } from '../../services';
 
 export const ShareBase64Modal: React.FunctionComponent = () => {
   const editorState = state.useEditorState();
   const document = editorState.editorValue.get();
-  const base64Document = ConverterService.exportToBase64(document);
+  const base64Document = FormatService.encodeBase64(document);
 
   function onClickCopy() {
     if (typeof navigator !== undefined) {
