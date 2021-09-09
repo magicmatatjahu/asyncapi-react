@@ -1,10 +1,9 @@
 import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
-
 import fileDownload from 'js-file-download';
 
-import state from '../state';
 import { FormatService } from './format.service';
 import { SpecificationService } from './specification.service';
+import state from '../state';
 
 export type AllowedLanguages = 'json' | 'yaml' | 'yml';
 
@@ -154,3 +153,12 @@ export class EditorService {
     return 'asyncapi';
   }
 }
+
+// workaround for autocompletion
+// editor.onKeyUp((e: any) => {
+//   const position = editor.getPosition();
+//   const text = editor.getModel().getLineContent(position.lineNumber).trim();
+//   if (e.keyCode === monaco.KeyCode.Enter && !text) {
+//     editor.trigger('', 'editor.action.triggerSuggest', '');
+//   }
+// });

@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 
 import { Content, Sidebar, Toolbar } from './components';
 import { EditorProps } from './components/Editor';
-import { LoadingModal } from './components/Modals/LoadingModal';
+import { LoadingModal, ConvertToLatestModal } from './components/Modals';
 import { NavigationService } from './services';
 
 import state from './state';
@@ -28,15 +28,19 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
     NavigationService.onInit();
   }, []);
 
-  console.log(appState);
-
-  if (appState.initialized.get() === false) {
-    return (
-      <div className="flex flex-col h-full w-full h-screen">
-        <LoadingModal title="Loading..." />
-      </div>
-    );
-  }
+  // if (appState.initialized.get() === false) {
+  //   return (
+  //     <div className="flex flex-col h-full w-full h-screen">
+  //       <Toolbar />
+  //       <div className="flex flex-row flex-1 overflow-hidden">
+  //         <Sidebar />
+  //         <Content />
+  //       </div>
+  //       <Toaster position="bottom-center" reverseOrder={false} />
+  //       <LoadingModal title="Loading..." />
+  //     </div>
+  //   );
+  // }
 
   if (isReadOnly) {
     return (
@@ -56,6 +60,7 @@ const MonacoEditorWrapper: React.FunctionComponent<AsyncApiEditorProps> = ({
       </div>
       <Toaster position="bottom-center" reverseOrder={false} />
       <LoadingModal title="Loading..." />
+      <ConvertToLatestModal />
     </div>
   );
 };

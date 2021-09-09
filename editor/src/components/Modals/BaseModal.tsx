@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { IModalProps } from './index';
 
@@ -8,13 +8,18 @@ export const BaseModal: React.FunctionComponent<IModalProps> = ({
   confirmText = 'Save',
   confirmDisabled = true,
   opener,
+  show = false,
   onSubmit,
   onCancel = () => {},
   children,
 }) => {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(show);
 
   const cancelButtonRef = useRef(null);
+
+  useEffect(() => {
+    setShowModal(show);
+  }, [show]);
 
   const handleOnSubmit = () => {
     onSubmit();

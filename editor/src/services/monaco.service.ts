@@ -4,9 +4,8 @@ import specs from '@asyncapi/specs';
 import { loader } from '@monaco-editor/react';
 import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
 
-import state from '../state';
-import { ParserService } from './parser';
 import { SpecificationService } from './specification.service';
+import state from '../state';
 
 export class MonacoService {
   private static actualVersion: string = '2.0.0';
@@ -136,7 +135,7 @@ export class MonacoService {
           return { suggestions: [] };
         }
 
-        console.log(ParserService.getAllRefs());
+        console.log(SpecificationService.getAllRefs());
 
         // get content info - are we inside of the area where we don't want suggestions,
         // what is the content without those areas
@@ -159,7 +158,7 @@ export class MonacoService {
         // return available elements/attributes if the tag exists in the schema or an empty
         // array if it doesn't
 
-        const suggestions = ParserService.getAllRefs().map(key => ({
+        const suggestions = SpecificationService.getAllRefs().map(key => ({
           label: lang === 'yaml' ? `'${key}'` : `"${key}"`,
           kind: monacoAPI.languages.CompletionItemKind.Property,
           insertText: lang === 'yaml' ? `'${key}'` : `"${key}"`,

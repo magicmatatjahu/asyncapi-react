@@ -6,9 +6,12 @@ import MonacoEditor, {
 import * as monacoAPI from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { debounce } from '../../helpers';
-import { EditorService, MonacoService, ParserService } from '../../services';
+import {
+  EditorService,
+  MonacoService,
+  SpecificationService,
+} from '../../services';
 import state from '../../state';
-import { SpecificationService } from '../../services/specification.service';
 
 export interface MonacoWrapperProps extends MonacoEditorProps {}
 
@@ -20,33 +23,28 @@ export const MonacoWrapper: React.FunctionComponent<MonacoWrapperProps> = ({
   async function handleEditorDidMount(
     editor: monacoAPI.editor.IStandaloneCodeEditor,
   ) {
+    // save editor instance to the window
     window.Editor = editor;
-    ParserService.parseSpec(editorState.editorValue.value);
+    // parse on first run the spec
+    SpecificationService.parseSpec(EditorService.getValue());
 
+    // apply save command
     editor.addCommand(
       monacoAPI.KeyMod.CtrlCmd | monacoAPI.KeyCode.KEY_S,
       function() {
-        const editorValue = editorState.editorValue.value;
+        const editorValue = EditorService.getValue();
         localStorage.setItem('document', editorValue);
         toast.success(
           <div>
             <span className="block text-bold">
-              Document succesfully saved to the cache!
+              Document succesfully saved to the local storage!
             </span>
           </div>,
         );
       },
     );
 
-    // workaround for autocompletion
-    // editor.onKeyUp((e: any) => {
-    //   const position = editor.getPosition();
-    //   const text = editor.getModel().getLineContent(position.lineNumber).trim();
-    //   if (e.keyCode === monaco.KeyCode.Enter && !text) {
-    //     editor.trigger('', 'editor.action.triggerSuggest', '');
-    //   }
-    // });
-
+    // mark editor as loaded
     editorState.editorLoaded.set(true);
   }
 

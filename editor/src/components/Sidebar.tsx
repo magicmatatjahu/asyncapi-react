@@ -3,7 +3,6 @@ import { StateMethods } from '@hookstate/core';
 import { VscListSelection, VscCode, VscOpenPreview } from 'react-icons/vsc';
 
 import state from '../state';
-import { SettingsModal } from './Modals';
 
 interface NavItem {
   name: string;
@@ -41,8 +40,6 @@ export const Sidebar: React.FunctionComponent<SidebarProps> = ({}) => {
     },
   ];
 
-  const settings = <SettingsModal />;
-
   return (
     <div className="flex flex-col flex-none bg-gray-800 shadow-lg border-r border-gray-700 justify-between">
       <div className="flex flex-col">
@@ -61,7 +58,6 @@ export const Sidebar: React.FunctionComponent<SidebarProps> = ({}) => {
           </button>
         ))}
       </div>
-      <div>{settings}</div>
     </div>
   );
 };

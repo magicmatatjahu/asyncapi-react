@@ -2,6 +2,7 @@ import { appState, useAppState } from './app';
 import { editorState, useEditorState } from './editor';
 import { parserState, useParserState } from './parser';
 import { sidebarState, useSidebarState } from './sidebar';
+import { specState, useSpecState } from './spec';
 
 const state = {
   // app
@@ -19,6 +20,10 @@ const state = {
   // sidebar
   sidebar: sidebarState,
   useSidebarState,
+
+  // sidebar
+  spec: specState,
+  useSpecState,
 };
 
 export default state;
