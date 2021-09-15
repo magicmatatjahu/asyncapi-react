@@ -23,7 +23,7 @@ export const Toolbar: React.FunctionComponent<ToolbarProps> = () => {
                 alt=""
               />
               <span className="inline-block text-xl text-pink-500 font-normal italic tracking-wide -ml-1 transform translate-y-0.5">
-                editor
+                studio
               </span>
             </div>
           </div>
