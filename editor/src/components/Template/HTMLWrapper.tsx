@@ -11,7 +11,7 @@ export const HTMLWrapper: React.FunctionComponent<HTMLWrapperProps> = () => {
   const parserState = state.useParserState();
   const editorState = state.useEditorState();
 
-  // using "json()"" for removing proxy from state
+  // using "json()"" for removing proxy from value
   let parsedSpec = parserState.parsedSpec.value;
   parsedSpec = parsedSpec
     ? new (AsyncAPIDocument as any)(parsedSpec.json())
@@ -19,17 +19,35 @@ export const HTMLWrapper: React.FunctionComponent<HTMLWrapperProps> = () => {
 
   useEffect(() => {
     if (editorState.editorLoaded.get() === true) {
-      setTimeout(NavigationService.scrollToHash, 100);
+      setTimeout(NavigationService.scrollToHash, 0);
     }
   }, [editorState.editorLoaded.get()]);
 
+  if (editorState.editorLoaded.get() === false) {
+    return (
+      <div className="flex overflow-hidden h-full justify-center items-center text-2xl mx-auto px-6">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!parsedSpec) {
+    return (
+      <div className="flex overflow-hidden h-full justify-center items-center text-2xl mx-auto px-6">
+        Empty or invalid document. Please fix errors/define AsyncAPI document.
+      </div>
+    );
+  }
+
   return (
     parsedSpec && (
-      <div>
-        <AsyncApiComponentWP
-          schema={parsedSpec}
-          config={{ show: { errors: false } }}
-        />
+      <div className="flex flex-1 flex-col h-full overflow-hidden">
+        <div className="overflow-auto">
+          <AsyncApiComponentWP
+            schema={parsedSpec}
+            config={{ show: { errors: false } }}
+          />
+        </div>
       </div>
     )
   );

@@ -37,10 +37,18 @@ export const Navigation: React.FunctionComponent<NavigationProps> = () => {
     };
   }, []);
 
+  if (editorState.editorLoaded.get() === false) {
+    return (
+      <div className="flex overflow-hidden bg-gray-800 h-full justify-center items-center text-center text-white text-md px-6">
+        Loading...
+      </div>
+    );
+  }
+
   if (!rawSpec || !spec || typeof spec === 'string') {
     return (
-      <div className="flex overflow-hidden bg-gray-800 h-full justify-center items-center text-white text-lg">
-        Specification invalid
+      <div className="flex overflow-hidden bg-gray-800 h-full justify-center items-center text-center text-white text-md px-6">
+        Empty or invalid document. Please fix errors/define AsyncAPI document.
       </div>
     );
   }
