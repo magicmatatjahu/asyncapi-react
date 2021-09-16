@@ -10,30 +10,30 @@ import { MonacoService } from './monaco.service';
 import state from '../state';
 
 export class SpecificationService {
-  static async parseSpec(spec: string): Promise<AsyncAPIDocument | void> {
+  static async parseSpec(rawSpec: string): Promise<AsyncAPIDocument | void> {
     const parserState = state.parser;
-    return parse(spec)
+    return parse(rawSpec)
       .then(v => {
         parserState.parsedSpec.set(v);
         parserState.valid.set(true);
         parserState.errors.set([]);
 
         MonacoService.updateLanguageConfig(v);
-        if (v.version() !== this.getLastVersion()) {
+        if (this.shouldInformAboutConvert(v)) {
           state.spec.shouldOpenConvertModal.set(true);
         }
 
         return v;
       })
       .catch(err => {
-        const errors = this.filterErrors(err);
+        const errors = this.filterErrors(err, rawSpec);
         parserState.parsedSpec.set(null);
         parserState.valid.set(false);
         parserState.errors.set(errors);
       });
   }
 
-  private static filterErrors(err: any) {
+  private static filterErrors(err: any, rawSpec: string) {
     let errors = [];
     if (this.isUnsupportedVersionError(err)) {
       errors.push({
@@ -41,7 +41,8 @@ export class SpecificationService {
         title: err.message,
         location: err.validationErrors,
       });
-      state.spec.shouldOpenConvertModal.set(true);
+      this.isNotSupportedVersion(rawSpec) &&
+        state.spec.shouldOpenConvertModal.set(true);
     }
     if (this.isValidationError(err)) {
       errors.push(...err.validationErrors);
@@ -129,6 +130,39 @@ export class SpecificationService {
       err &&
       err.type === 'https://github.com/asyncapi/parser-js/dereference-error'
     );
+  }
+
+  private static shouldInformAboutConvert(
+    asyncAPIDocument: AsyncAPIDocument,
+  ): boolean {
+    const oneDay = 24 * 60 * 60 * 1000; /* ms */
+
+    const nowDate = new Date();
+    let dateOfLastQuestion = nowDate;
+    if (localStorage.getItem('informed-about-convert')) {
+      dateOfLastQuestion = new Date(
+        localStorage.getItem('informed-about-convert'),
+      );
+    }
+    const isOvertime =
+      nowDate === dateOfLastQuestion ||
+      nowDate.getTime() - dateOfLastQuestion.getTime() > oneDay;
+    if (isOvertime && asyncAPIDocument.version() !== this.getLastVersion()) {
+      localStorage.setItem('informed-about-convert', nowDate.toString());
+      return true;
+    }
+    return false;
+  }
+
+  private static isNotSupportedVersion(rawSpec: string): boolean {
+    if (
+      /('|"|)asyncapi('|"|): ('|"|)(1.0.0|1.1.0|1.2.0|2.0.0-rc1|2.0.0-rc2)('|"|)/.test(
+        rawSpec.trim(),
+      )
+    ) {
+      return true;
+    }
+    return false;
   }
 
   static getAllRefs(): string[] {
